@@ -13,7 +13,7 @@ const ADVSEC_TOOLS = {
   get_alert_details: "advsec_get_alert_details",
 };
 
-function configureAdvSecTools(server: McpServer, tokenProvider: () => Promise<AccessToken>, connectionProvider: () => Promise<WebApi>) {
+function configureAdvSecTools(server: McpServer, connectionProvider: () => Promise<WebApi>) {
   server.tool(
     ADVSEC_TOOLS.get_alerts,
     "Retrieve Advanced Security alerts for a repository.",

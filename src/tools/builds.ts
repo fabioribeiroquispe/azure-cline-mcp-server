@@ -23,7 +23,7 @@ const BUILD_TOOLS = {
   update_build_stage: "build_update_build_stage",
 };
 
-function configureBuildTools(server: McpServer, tokenProvider: () => Promise<AccessToken>, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
+function configureBuildTools(server: McpServer, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
   server.tool(
     BUILD_TOOLS.get_definitions,
     "Retrieves a list of build definitions for a given project.",

@@ -17,7 +17,7 @@ const SEARCH_TOOLS = {
   search_workitem: "search_workitem",
 };
 
-function configureSearchTools(server: McpServer, tokenProvider: () => Promise<AccessToken>, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
+function configureSearchTools(server: McpServer, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
   server.tool(
     SEARCH_TOOLS.search_code,
     "Search Azure DevOps Repositories for a given search text",
