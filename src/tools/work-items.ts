@@ -367,7 +367,7 @@ function configureWorkItemTools(server: McpServer, tokenProvider: () => Promise<
     async ({ project, queryId }) => {
       const connection = await connectionProvider();
       const witApi = await connection.getWorkItemTrackingApi();
-      const queryResult = await witApi.queryById(queryId, project);
+      const queryResult = await witApi.queryById(queryId, { project } as TeamContext);
       const workItems = await getWorkItemsFromQuery(witApi, queryResult);
       return {
         content: [{ type: "text", text: JSON.stringify(workItems, null, 2) }],
