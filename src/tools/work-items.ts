@@ -208,6 +208,7 @@ function configureWorkItemTools(server: McpServer, tokenProvider: () => Promise<
     }
   );
 
+  /*
   server.tool(
     WORKITEM_TOOLS.get_work_items_for_iteration,
     "Retrieve a list of work items for a specified iteration.",
@@ -223,6 +224,7 @@ function configureWorkItemTools(server: McpServer, tokenProvider: () => Promise<
       };
     }
   );
+  */
 
   server.tool(
     WORKITEM_TOOLS.add_work_item_comment,
