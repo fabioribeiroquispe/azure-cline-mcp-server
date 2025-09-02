@@ -20,7 +20,7 @@ function filterProjectsByName(projects: ProjectInfo[], projectNameFilter: string
   return projects.filter((project) => project.name?.toLowerCase().includes(lowerCaseFilter));
 }
 
-function configureCoreTools(server: McpServer, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
+function configureCoreTools(server: McpServer, tokenProvider: () => Promise<string>, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
   server.tool(
     CORE_TOOLS.list_project_teams,
     "Retrieve a list of teams for the specified Azure DevOps project.",
@@ -98,13 +98,13 @@ function configureCoreTools(server: McpServer, connectionProvider: () => Promise
     },
     async ({ searchFilter }) => {
       try {
-        const identities = await searchIdentities(searchFilter, connectionProvider);
+        const identities = await searchIdentities(searchFilter, tokenProvider, connectionProvider, userAgentProvider);
 
-        if (!identities || identities.length === 0) {
+        if (!identities.value || identities.value.length === 0) {
           return { content: [{ type: "text", text: "No identities found" }], isError: true };
         }
 
-        const identitiesTrimmed = identities.map((identity: Identity) => {
+        const identitiesTrimmed = identities.value.map((identity: Identity) => {
           return {
             id: identity.id,
             displayName: identity.providerDisplayName,

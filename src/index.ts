@@ -56,9 +56,13 @@ const orgUrl = "https://dev.azure.com/" + orgName;
 const domainsManager = new DomainsManager(argv.domains);
 export const enabledDomains = domainsManager.getEnabledDomains();
 
+function getTokenProvider(): () => Promise<string> {
+  return async () => pat!;
+}
+
 function getAzureDevOpsClient(userAgentComposer: UserAgentComposer): () => Promise<azdev.WebApi> {
   return async () => {
-    const authHandler = azdev.getPersonalAccessTokenHandler(pat);
+    const authHandler = azdev.getPersonalAccessTokenHandler(pat!);
     const connection = new azdev.WebApi(orgUrl, authHandler, undefined, {
       productName: "AzureDevOps.MCP",
       productVersion: packageVersion,
@@ -81,7 +85,7 @@ async function main() {
 
   configurePrompts(server);
 
-  configureAllTools(server, getAzureDevOpsClient(userAgentComposer), () => userAgentComposer.userAgent, enabledDomains);
+  configureAllTools(server, getTokenProvider(), getAzureDevOpsClient(userAgentComposer), () => userAgentComposer.userAgent, enabledDomains);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
