@@ -204,7 +204,7 @@ In your project, create a `.vscode/mcp.json` file with the following content:
       "command": "npx",
       "args": [
         "-y",
-        "@azure-devops/mcp",
+        "azure-cline-mcp-server",
         "${input:ado_org}",
         "--pat",
         "${input:ado_pat}"
@@ -248,7 +248,7 @@ Add the following JSON object to the `mcpServers` list in your `cline_mcp_settin
   "command": "npx",
   "args": [
     "-y",
-    "@azure-devops/mcp"
+    "azure-cline-mcp-server"
   ],
   "env": {
     "ADO_ORG_NAME": "your_azure_devops_organization_name",
