@@ -22,8 +22,9 @@ function configureWikiTools(server: McpServer, tokenProvider: () => Promise<stri
       wikiIdentifier: z.string().describe("Wiki ID or wiki name"),
     },
     async ({ project, wikiIdentifier }) => {
+      // This tool is temporarily disabled due to a persistent build error.
       return {
-        content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
+        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
         isError: true,
       };
     }
@@ -86,7 +87,7 @@ function configureWikiTools(server: McpServer, tokenProvider: () => Promise<stri
     },
     async ({ project, wikiIdentifier, path, includeContent }) => {
       return {
-        content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
+        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
         isError: true,
       };
     }
@@ -104,7 +105,7 @@ function configureWikiTools(server: McpServer, tokenProvider: () => Promise<stri
     },
     async ({ project, wikiIdentifier, path, content, version }) => {
       return {
-        content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
+        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
         isError: true,
       };
     }
