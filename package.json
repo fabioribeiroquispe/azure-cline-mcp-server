@@ -1,14 +1,14 @@
 {
-  "name": "@azure-devops/mcp",
-  "version": "2.0.0",
-  "description": "MCP server for interacting with Azure DevOps",
+  "name": "@farioribeiroquispe/azure-cline-mcp-server",
+  "version": "0.1.0",
+  "description": "Custom MCP server for interacting with Azure DevOps",
   "license": "MIT",
-  "author": "Microsoft Corporation",
-  "homepage": "https://github.com/microsoft/azure-devops-mcp",
-  "bugs": "https://github.com/microsoft/azure-devops-mcp/issues",
+  "author": "Fábio Ribeiro dos Santos Quispe",
+  "homepage": "https://github.com/farioribeiroquispe/azure-cline-mcp-server",
+  "bugs": "https://github.com/farioribeiroquispe/azure-cline-mcp-server/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/azure-devops-mcp.git"
+    "url": "https://github.com/farioribeiroquispe/azure-cline-mcp-server.git"
   },
   "type": "module",
   "bin": {

@@ -1,1 +1,25 @@
-../mcp.json
+{
+  "inputs": [
+    {
+      "id": "ado_org",
+      "type": "promptString",
+      "description": "Azure DevOps organization name (e.g. 'contoso')"
+    },
+    {
+      "id": "ado_pat",
+      "type": "promptPassword",
+      "description": "Azure DevOps Personal Access Token"
+    }
+  ],
+  "servers": {
+    "ado": {
+      "type": "stdio",
+      "command": "mcp-server-azuredevops",
+      "args": [
+        "${input:ado_org}",
+        "--pat",
+        "${input:ado_pat}"
+      ]
+    }
+  }
+}

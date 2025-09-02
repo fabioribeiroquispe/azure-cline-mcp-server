@@ -6,7 +6,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import * as azdev from "azure-devops-node-api";
-import { AccessToken, AzureCliCredential, ChainedTokenCredential, DefaultAzureCredential, TokenCredential } from "@azure/identity";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -19,62 +18,47 @@ import { DomainsManager } from "./shared/domains.js";
 // Parse command line arguments using yargs
 const argv = yargs(hideBin(process.argv))
   .scriptName("mcp-server-azuredevops")
-  .usage("Usage: $0 <organization> [options]")
+  .usage("Usage: $0 <organization> --pat <personal_access_token> [options]")
   .version(packageVersion)
-  .command("$0 <organization> [options]", "Azure DevOps MCP Server", (yargs) => {
+  .command("$0 [organization]", "Azure DevOps MCP Server", (yargs) => {
     yargs.positional("organization", {
-      describe: "Azure DevOps organization name",
+      describe: "Azure DevOps organization name. Can also be set via ADO_ORG_NAME environment variable.",
       type: "string",
-      demandOption: true,
     });
   })
   .option("domains", {
     alias: "d",
-    describe: "Domain(s) to enable: 'all' for everything, or specific domains like 'repositories builds work'. Defaults to 'all'.",
+    describe: "Domain(s) to enable: 'all' for everything, or a list like 'repositories builds work'. Defaults to 'all'.",
     type: "string",
     array: true,
     default: "all",
   })
-  .option("tenant", {
-    alias: "t",
-    describe: "Azure tenant ID (optional, required for multi-tenant scenarios)",
+  .option("pat", {
+    describe: "Azure DevOps Personal Access Token. Can also be set via ADO_PAT environment variable.",
     type: "string",
   })
   .help()
   .parseSync();
 
-const tenantId = argv.tenant;
+const orgName = (argv.organization as string) || process.env.ADO_ORG_NAME;
+const pat = (argv.pat as string) || process.env.ADO_PAT;
 
-export const orgName = argv.organization as string;
+if (!orgName) {
+  throw new Error("Azure DevOps organization name must be provided via the <organization> argument or the ADO_ORG_NAME environment variable.");
+}
+if (!pat) {
+  throw new Error("Personal Access Token must be provided via the --pat argument or the ADO_PAT environment variable.");
+}
+
+export { orgName };
 const orgUrl = "https://dev.azure.com/" + orgName;
 
 const domainsManager = new DomainsManager(argv.domains);
 export const enabledDomains = domainsManager.getEnabledDomains();
 
-async function getAzureDevOpsToken(): Promise<AccessToken> {
-  if (process.env.ADO_MCP_AZURE_TOKEN_CREDENTIALS) {
-    process.env.AZURE_TOKEN_CREDENTIALS = process.env.ADO_MCP_AZURE_TOKEN_CREDENTIALS;
-  } else {
-    process.env.AZURE_TOKEN_CREDENTIALS = "dev";
-  }
-  let credential: TokenCredential = new DefaultAzureCredential(); // CodeQL [SM05138] resolved by explicitly setting AZURE_TOKEN_CREDENTIALS
-  if (tenantId) {
-    // Use Azure CLI credential if tenantId is provided for multi-tenant scenarios
-    const azureCliCredential = new AzureCliCredential({ tenantId });
-    credential = new ChainedTokenCredential(azureCliCredential, credential);
-  }
-
-  const token = await credential.getToken("499b84ac-1321-427f-aa17-267ca6975798/.default");
-  if (!token) {
-    throw new Error("Failed to obtain Azure DevOps token. Ensure you have Azure CLI logged in or another token source setup correctly.");
-  }
-  return token;
-}
-
 function getAzureDevOpsClient(userAgentComposer: UserAgentComposer): () => Promise<azdev.WebApi> {
   return async () => {
-    const token = await getAzureDevOpsToken();
-    const authHandler = azdev.getBearerHandler(token.token);
+    const authHandler = azdev.getPersonalAccessTokenHandler(pat);
     const connection = new azdev.WebApi(orgUrl, authHandler, undefined, {
       productName: "AzureDevOps.MCP",
       productVersion: packageVersion,
@@ -97,7 +81,7 @@ async function main() {
 
   configurePrompts(server);
 
-  configureAllTools(server, getAzureDevOpsToken, getAzureDevOpsClient(userAgentComposer), () => userAgentComposer.userAgent, enabledDomains);
+  configureAllTools(server, getAzureDevOpsClient(userAgentComposer), () => userAgentComposer.userAgent, enabledDomains);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
