@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
 import { WebApi } from "azure-devops-node-api";
-import { TestPlanCreateParams } from "azure-devops-node-api/interfaces/TestPlanInterfaces.js";
+import { TestPlanCreateParams } from "azure-devops-node-api/interfaces/TestPlanInterfaces";
 import { z } from "zod";
 
 const Test_Plan_Tools = {

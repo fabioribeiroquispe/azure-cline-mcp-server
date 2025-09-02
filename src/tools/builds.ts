@@ -5,7 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebApi } from "azure-devops-node-api";
 import { Build, BuildResult, BuildStatus, StageUpdateType } from "azure-devops-node-api/interfaces/BuildInterfaces.js";
 import { z } from "zod";
-import { getEnumKeys } from "../utils.js";
+import { getEnumKeys } from "../utils";
 
 const BUILD_TOOLS = {
   get_definitions: "build_get_definitions",

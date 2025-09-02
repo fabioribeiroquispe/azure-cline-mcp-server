@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
 import { WebApi } from "azure-devops-node-api";
 import { z } from "zod";
-import { searchIdentities } from "./auth.js";
+import { searchIdentities } from "./auth";
 
-import type { ProjectInfo } from "azure-devops-node-api/interfaces/CoreInterfaces.js";
-import { Identity } from "azure-devops-node-api/interfaces/IdentitiesInterfaces.js";
+import type { ProjectInfo } from "azure-devops-node-api/interfaces/CoreInterfaces";
+import { Identity } from "azure-devops-node-api/interfaces/IdentitiesInterfaces";
 
 const CORE_TOOLS = {
   list_project_teams: "core_list_project_teams",

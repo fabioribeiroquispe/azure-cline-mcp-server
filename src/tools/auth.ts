@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { WebApi } from "azure-devops-node-api";
-import { apiVersion } from "../utils.js";
-import { IdentityBase } from "azure-devops-node-api/interfaces/IdentitiesInterfaces.js";
+import { apiVersion } from "../utils";
+import { IdentityBase } from "azure-devops-node-api/interfaces/IdentitiesInterfaces";
 
 interface IdentitiesResponse {
   value: IdentityBase[];

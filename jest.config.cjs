@@ -1,10 +1,17 @@
+/** @type {import('jest').Config} */
 module.exports = {
-  // Use ts-jest preset for TypeScript support
-  preset: "ts-jest",
-
-  // Specify the test environment (node for backend projects)
-  testEnvironment: "node",
-
+  preset: 'ts-jest/presets/default-esm',
+  testEnvironment: 'node',
+  extensionsToTreatAsEsm: ['.ts'],
+  globals: {
+    'ts-jest': {
+      useESM: true,
+      tsconfig: 'tsconfig.json',
+    },
+  },
+  transform: {
+    '^.+\\.ts$': ['ts-jest', { useESM: true }],
+  },
   // Root directory for test files
   roots: ["<rootDir>/test"],
 
@@ -31,19 +38,5 @@ module.exports = {
       lines: 40,
       statements: 40,
     },
-  },
-
-  // Module file extensions for importing
-  moduleFileExtensions: ["ts", "js"],
-
-  // Transform settings for ts-jest
-  transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
-  },
-
-  moduleNameMapper: {
-    "^(.+)/version\\.js$": "$1/version.ts",
-    "^(.+)/utils\\.js$": "$1/utils.ts",
-    "^(.+)/auth\\.js$": "$1/auth.ts",
   },
 };

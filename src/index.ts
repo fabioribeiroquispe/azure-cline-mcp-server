@@ -3,17 +3,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio";
 import * as azdev from "azure-devops-node-api";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { configurePrompts } from "./prompts.js";
-import { configureAllTools } from "./tools.js";
-import { UserAgentComposer } from "./useragent.js";
-import { packageVersion } from "./version.js";
-import { DomainsManager } from "./shared/domains.js";
+import { configurePrompts } from "./prompts";
+import { configureAllTools } from "./tools";
+import { UserAgentComposer } from "./useragent";
+import { packageVersion } from "./version";
+import { DomainsManager } from "./shared/domains";
 
 // Parse command line arguments using yargs
 const argv = yargs(hideBin(process.argv))
