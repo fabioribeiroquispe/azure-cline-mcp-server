@@ -10,7 +10,7 @@ const WIKI_TOOLS = {
   get_wiki: "wiki_get_wiki",
   list_pages: "wiki_list_pages",
   get_page_content: "wiki_get_page_content",
-  create_or_update_page: "wiki_create_or_update_page",
+  create_wiki: "wiki_create_wiki",
 };
 
 function configureWikiTools(server: McpServer, tokenProvider: () => Promise<string>, connectionProvider: () => Promise<WebApi>) {
@@ -23,7 +23,7 @@ function configureWikiTools(server: McpServer, tokenProvider: () => Promise<stri
     },
     async ({ project, wikiIdentifier }) => {
       return {
-        content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
+        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
         isError: true,
       };
     }
@@ -56,21 +56,9 @@ function configureWikiTools(server: McpServer, tokenProvider: () => Promise<stri
       includeContent: z.boolean().optional().default(false).describe("Whether to include the content of the pages. Optional, defaults to false."),
     },
     async ({ project, wikiIdentifier, path, recursionLevel, includeContent }) => {
-      const connection = await connectionProvider();
-      const wikiApi = await connection.getWikiApi();
-
-      const pages = await wikiApi.getPagesBatch(
-        {
-          wikiIdentifier,
-          path,
-          recursionLevel,
-          includeContent,
-        },
-        project
-      );
-
       return {
-        content: [{ type: "text", text: JSON.stringify(pages, null, 2) }],
+        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
+        isError: true,
       };
     }
   );
@@ -86,27 +74,25 @@ function configureWikiTools(server: McpServer, tokenProvider: () => Promise<stri
     },
     async ({ project, wikiIdentifier, path, includeContent }) => {
       return {
-        content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
+        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
         isError: true,
       };
     }
   );
 
   server.tool(
-    WIKI_TOOLS.create_or_update_page,
-    "Create or update wiki pages with full content support.",
+    WIKI_TOOLS.create_wiki,
+    "Creates a new wiki in a project.",
     {
-      project: z.string().describe("The name or ID of the Azure DevOps project."),
-      wikiIdentifier: z.string().describe("The ID or name of the wiki."),
-      path: z.string().describe("The path to the page to create or update."),
-      content: z.string().describe("The content of the page."),
-      version: z.string().optional().describe("The version of the page to update. Optional, if not provided, a new page will be created."),
+      project: z.string().describe("The name or ID of the Azure DevOps project in which the wiki is to be created."),
+      name: z.string().describe("The name for the new wiki."),
+      type: z.enum(["projectWiki", "codeWiki"]).describe("The type of the wiki."),
     },
-    async ({ project, wikiIdentifier, path, content, version }) => {
-      return {
-        content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
-        isError: true,
-      };
+    async ({ project, name, type }) => {
+        return {
+            content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
+            isError: true,
+        };
     }
   );
 }

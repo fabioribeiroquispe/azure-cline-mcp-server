@@ -95,7 +95,7 @@ function configureWorkItemTools(server: McpServer, tokenProvider: () => Promise<
     },
     async ({ project }) => {
       return {
-        content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
+        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
         isError: true,
       };
     }
@@ -208,7 +208,6 @@ function configureWorkItemTools(server: McpServer, tokenProvider: () => Promise<
     }
   );
 
-  /*
   server.tool(
     WORKITEM_TOOLS.get_work_items_for_iteration,
     "Retrieve a list of work items for a specified iteration.",
@@ -218,13 +217,12 @@ function configureWorkItemTools(server: McpServer, tokenProvider: () => Promise<
       iterationId: z.string().describe("The ID of the iteration."),
     },
     async ({ project, team, iterationId }) => {
-      return {
-        content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
-        isError: true,
-      };
+        return {
+            content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
+            isError: true,
+        };
     }
   );
-  */
 
   server.tool(
     WORKITEM_TOOLS.add_work_item_comment,
