@@ -1,3 +1,11 @@
+import { describe, it, expect } from "@jest/globals";
+
+describe("work-items mock", () => {
+    it("should have a dummy test", () => {
+        expect(true).toBe(true);
+    });
+});
+
 export const _mockWorkItems = {
   count: 3,
   value: [

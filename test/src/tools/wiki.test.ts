@@ -1,5 +1,5 @@
 import { AccessToken } from "@azure/identity";
-import { describe, expect, it } from "@jest/globals";
+import { jest, describe, expect, it, beforeEach, afterEach } from "@jest/globals";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebApi } from "azure-devops-node-api";
 import { configureWikiTools } from "../../../src/tools/wiki";

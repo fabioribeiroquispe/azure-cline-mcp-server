@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { jest, describe, expect, it, beforeEach, afterEach } from "@jest/globals";
 import { DomainsManager } from "../../src/shared/domains";
 
 describe("DomainsManager: backward compatibility and domain enabling", () => {

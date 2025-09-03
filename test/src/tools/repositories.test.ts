@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { jest, describe, expect, it, beforeEach } from "@jest/globals";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { AccessToken } from "@azure/identity";
 import { WebApi } from "azure-devops-node-api";

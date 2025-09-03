@@ -4,10 +4,10 @@
 import { WebApi } from "azure-devops-node-api";
 import { getCurrentUserDetails, getUserIdFromEmail, searchIdentities } from "../../../src/tools/auth";
 import { jest, describe, expect, it, beforeEach, afterEach } from "@jest/globals";
+import { ToolResponse } from "../../../src/shared/tool-response";
 
 type TokenProviderMock = jest.MockedFunction<() => Promise<string>>;
 
-// Helper function to mock fetch responses, as suggested by the user.
 const mockFetch = (data: unknown, ok = true, status = 200) => {
   (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
     ok,
@@ -33,7 +33,6 @@ describe("auth functions", () => {
 
     connectionProvider = jest.fn().mockResolvedValue(mockConnection);
 
-    // Properly typed global.fetch mock, as suggested by the user.
     global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
   });
 
@@ -42,7 +41,7 @@ describe("auth functions", () => {
   });
 
   describe("getCurrentUserDetails", () => {
-    it("should fetch current user details with correct parameters", async () => {
+    it("should fetch current user details and return a ToolResponse", async () => {
       tokenProvider.mockResolvedValue("fake-token");
       const mockUserData = {
         authenticatedUser: {
@@ -51,7 +50,6 @@ describe("auth functions", () => {
           uniqueName: "test@example.com",
         },
       };
-      // Using the new helper
       mockFetch(mockUserData);
 
       const result = await getCurrentUserDetails(tokenProvider, connectionProvider, userAgentProvider);
@@ -64,20 +62,26 @@ describe("auth functions", () => {
           "User-Agent": "Jest",
         },
       });
-      expect(result).toEqual(mockUserData);
+      expect(result).toEqual<ToolResponse>({
+        content: [{ type: "text", text: JSON.stringify(mockUserData, null, 2) }],
+      });
     });
 
-    it("should handle HTTP error responses correctly", async () => {
+    it("should handle HTTP error responses and return an error ToolResponse", async () => {
       tokenProvider.mockResolvedValue("fake-token");
-      // Using the new helper for an error case
       mockFetch({ message: "Unauthorized" }, false, 401);
 
-      await expect(getCurrentUserDetails(tokenProvider, connectionProvider, userAgentProvider)).rejects.toThrow("Error fetching user details: Unauthorized");
+      const result = await getCurrentUserDetails(tokenProvider, connectionProvider, userAgentProvider);
+
+      expect(result).toEqual<ToolResponse>({
+        content: [{ type: "text", text: "Error fetching user details: Unauthorized" }],
+        isError: true,
+      });
     });
   });
 
   describe("searchIdentities", () => {
-    it("should search identities and return expected result", async () => {
+    it("should search identities and return a ToolResponse", async () => {
       tokenProvider.mockResolvedValue("fake-token");
       const mockIdentities = { value: [{ id: "user1-id" }] };
       mockFetch(mockIdentities);
@@ -85,42 +89,59 @@ describe("auth functions", () => {
       const result = await searchIdentities("test@example.com", tokenProvider, connectionProvider, userAgentProvider);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://vssps.dev.azure.com/test-org/_apis/identities?api-version=7.1-preview.1&searchFilter=General&filterValue=test%40example.com",
+        "https://vssps.dev.azure.com/test-org/_apis/identities?api-version=7.2-preview.1&searchFilter=General&filterValue=test%40example.com",
         expect.any(Object)
       );
-      expect(result).toEqual(mockIdentities);
+      expect(result).toEqual<ToolResponse>({
+        content: [{ type: "text", text: JSON.stringify(mockIdentities, null, 2) }],
+      });
     });
 
-    it("should handle HTTP error responses correctly", async () => {
+    it("should handle HTTP error responses and return an error ToolResponse", async () => {
       tokenProvider.mockResolvedValue("fake-token");
       mockFetch("Not Found", false, 404);
 
-      await expect(searchIdentities("nonexistent@example.com", tokenProvider, connectionProvider, userAgentProvider)).rejects.toThrow("HTTP 404: Not Found");
+      const result = await searchIdentities("nonexistent@example.com", tokenProvider, connectionProvider, userAgentProvider);
+
+      expect(result).toEqual<ToolResponse>({
+        content: [{ type: "text", text: "HTTP 404: Not Found" }],
+        isError: true,
+      });
     });
   });
 
   describe("getUserIdFromEmail", () => {
-    it("should return user ID from email", async () => {
+    it("should return user ID in a ToolResponse", async () => {
       tokenProvider.mockResolvedValue("fake-token");
       const mockIdentities = { value: [{ id: "user1-id" }] };
       mockFetch(mockIdentities);
 
       const result = await getUserIdFromEmail("john.doe@example.com", tokenProvider, connectionProvider, userAgentProvider);
-      expect(result).toBe("user1-id");
+      expect(result).toEqual<ToolResponse>({
+        content: [{ type: "text", text: JSON.stringify({ id: "user1-id" }, null, 2) }],
+      });
     });
 
-    it("should throw error when no users found", async () => {
+    it("should return an error ToolResponse when no users found", async () => {
       tokenProvider.mockResolvedValue("fake-token");
       mockFetch({ value: [] });
 
-      await expect(getUserIdFromEmail("nobody@example.com", tokenProvider, connectionProvider, userAgentProvider)).rejects.toThrow("No user found with email/unique name: nobody@example.com");
+      const result = await getUserIdFromEmail("nobody@example.com", tokenProvider, connectionProvider, userAgentProvider);
+      expect(result).toEqual<ToolResponse>({
+        content: [{ type: "text", text: "No user found with email/unique name: nobody@example.com" }],
+        isError: true,
+      });
     });
 
-    it("should throw error when user has no ID", async () => {
+    it("should return an error ToolResponse when user has no ID", async () => {
       tokenProvider.mockResolvedValue("fake-token");
       mockFetch({ value: [{ providerDisplayName: "John Doe" }] });
 
-      await expect(getUserIdFromEmail("john.doe@example.com", tokenProvider, connectionProvider, userAgentProvider)).rejects.toThrow("No ID found for user with email/unique name: john.doe@example.com");
+      const result = await getUserIdFromEmail("john.doe@example.com", tokenProvider, connectionProvider, userAgentProvider);
+      expect(result).toEqual<ToolResponse>({
+        content: [{ type: "text", text: "No ID found for user with email/unique name: john.doe@example.com" }],
+        isError: true,
+      });
     });
   });
 });

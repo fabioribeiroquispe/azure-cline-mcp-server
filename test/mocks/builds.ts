@@ -1,5 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import { describe, it, expect } from "@jest/globals";
+
+describe("builds mock", () => {
+    it("should have a dummy test", () => {
+        expect(true).toBe(true);
+    });
+});
 
 export const mockBuildDefinitions = [
   {

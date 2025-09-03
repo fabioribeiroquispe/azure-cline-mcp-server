@@ -4,8 +4,8 @@
     "rootDir": "src",
     "baseUrl": "src",
     "target": "ES2022",
-    "module": "Node16",
-    "moduleResolution": "Node16",
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -19,6 +19,6 @@
       "@utils": ["utils.js"]
     }
   },
-  "include": ["./src/**/*", "./docs/**/*"],
+  "include": ["./src/**/*", "./docs/**/*", "./test/**/*"],
   "exclude": ["node_modules", "dist"]
 }

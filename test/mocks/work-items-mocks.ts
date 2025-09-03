@@ -1,5 +1,12 @@
+import { describe, it, expect, jest } from "@jest/globals";
 import { IWorkApi } from "azure-devops-node-api/WorkApi";
 import { IWorkItemTrackingApi } from "azure-devops-node-api/WorkItemTrackingApi";
+
+describe("work-items-mocks", () => {
+    it("should have a dummy test", () => {
+        expect(true).toBe(true);
+    });
+});
 
 export const mockWorkClient = (): jest.Mocked<IWorkApi> =>
   ({

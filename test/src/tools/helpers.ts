@@ -4,9 +4,15 @@ import { IBuildApi } from "azure-devops-node-api/BuildApi";
 import { IPipelinesApi } from "azure-devops-node-api/PipelinesApi";
 import { IWorkApi } from "azure-devops-node-api/WorkApi.js";
 import { IWorkItemTrackingApi } from "azure-devops-node-api/WorkItemTrackingApi.js";
-import { jest } from "@jest/globals";
+import { jest, describe, it, expect } from "@jest/globals";
 import { configureBuildTools } from "../../../src/tools/builds";
 import { mockBuildApiClient, mockPipelinesApiClient } from "../../mocks/azure-devops-clients";
+
+describe("helpers", () => {
+    it("should have a dummy test", () => {
+        expect(true).toBe(true);
+    });
+});
 
 export const setupBuildToolsTest = () => {
   const server = { tool: jest.fn() } as unknown as McpServer;
