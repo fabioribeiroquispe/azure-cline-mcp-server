@@ -1,168 +1,164 @@
-# Azure DevOps MCP Server: Example Usage
+# Azure Cline MCP Server: Guia de Uso
 
-This guide offers step-by-step examples for using the Azure DevOps MCP Server to interact with your Azure DevOps organization. For additional tips and best practices, see the [How To guide](./HOWTO.md).
+Este guia oferece exemplos passo a passo de como utilizar o Azure Cline MCP Server para interagir com sua organização no Azure DevOps. Para dicas adicionais e boas práticas, consulte o [Guia How To](./HOWTO.md).
 
-> 📝 These examples have been tested and validated only in English. If you encounter issues when using a different language, please open an issue in the repository so we can investigate.
+> 📝 Estes exemplos foram testados e validados apenas em inglês. Se encontrar problemas ao usar outro idioma, abra uma issue no repositório para que possamos investigar.
 
-- [Get List of Projects](#get-list-of-projects)
-- [Get List of Teams](#get-list-of-teams)
-- [Get My Work Items](#get-my-work-items)
-- [Get Work Items in a Backlog](#get-all-work-items-in-a-backlog)
-- [Retrieve and Edit Work Items](#retrieve-and-edit-work-items)
-- [Create and Link Test Cases](#create-and-link-test-cases)
-- [Triage Work](#triage-work)
-- [Using Markdown Format](#adding-and-updating-work-items-using-the-format-paramater)
-- [Remove Links from a Work Item](#remove-one-or-more-links-from-a-work-item)
-- [Adding Artifact Links](#adding-artifact-links)
-- [Reading, Creating, and Updating Wiki Page Content](#reading-creating-and-updating-wiki-page-content)
+- [Listar Projetos](#listar-projetos)
+- [Listar Equipes](#listar-equipes)
+- [Meus Work Items](#meus-work-items)
+- [Work Items em um Backlog](#work-items-em-um-backlog)
+- [Consultar e Editar Work Items](#consultar-e-editar-work-items)
+- [Criar e Vincular Test Cases](#criar-e-vincular-test-cases)
+- [Triagem de Work Items](#triagem-de-work-items)
+- [Usando Formato Markdown](#adicionando-e-atualizando-work-items-usando-o-parametro-format)
+- [Remover Links de um Work Item](#remover-um-ou-mais-links-de-um-work-item)
+- [Adicionar Links de Artefatos](#adicionando-links-de-artefatos)
+- [Lendo, Criando e Atualizando Conteúdo de Wiki](#lendo-criando-e-atualizando-conteudo-de-wiki)
 
-## 🙋‍♂️ Projects and Teams
+---
 
-### Get List of Projects
+## 🙋‍♂️ Projetos e Equipes
 
-Most work item tools require project context. You can retrieve the list of projects and specify the desired project:
+### Listar Projetos
 
-```text
-get list of ado projects
-```
-
-### Get List of Teams
-
-This command returns all Azure DevOps projects for the organization defined in the `mcp.json` file. Similarly, you can retrieve the team context:
+A maioria das ferramentas de work item requer contexto de projeto. Você pode recuperar a lista de projetos e especificar o projeto desejado:
 
 ```text
-get list of teams for project contoso
+listar projetos ado
+````
+
+### Listar Equipes
+
+Este comando retorna todos os projetos do Azure DevOps para a organização definida no arquivo `mcp.json`. Da mesma forma, você pode obter o contexto da equipe:
+
+```text
+listar equipes para projeto contoso
 ```
 
-📽️ [Azure DevOps MCP Server: Get list of projects and teams](https://youtu.be/x579E4_jNtY)
+📽️ [Azure Cline MCP Server: Listar projetos e equipes](https://youtu.be/x579E4_jNtY)
+
+---
 
 ## 📅 Work Items
 
-### Get My Work Items
+### Meus Work Items
 
-Retrieve a list of work items assigned to you. This tool requires project context:
+Recupere a lista de work items atribuídos a você. É necessário fornecer o contexto do projeto:
 
 ```text
-get my work items for project contoso
+listar meus work items para projeto contoso
 ```
 
-The model should automatically use the `wit_get_work_items_batch_by_ids` tool to fetch work item details.
+O modelo deve usar automaticamente a ferramenta `wit_get_work_items_batch_by_ids` para buscar os detalhes dos work items.
 
-📽️ [Azure DevOps MCP Server: Get my work items](https://youtu.be/y_ri8n7mBlg)
+📽️ [Azure Cline MCP Server: Meus Work Items](https://youtu.be/y_ri8n7mBlg)
 
-### Get All Work Items in a Backlog
+### Work Items em um Backlog
 
-You need project, team and backlog (Epics, Stories, Features) context in order to get a list of all the work items in a backlog.
+É necessário contexto de projeto, equipe e backlog (Epics, Stories, Features) para listar todos os work items de um backlog:
 
 ```text
-get backlogs for Contoso project and Fabrikam team
+listar backlogs para projeto Contoso e equipe Fabrikam
 ```
 
-Once you have the backlog levels, you can then get work items for that backlog.
+Com os níveis do backlog, você pode buscar os work items correspondentes:
 
 ```text
-get list of work items for Features backlog
+listar work items para backlog Features
 ```
 
-The model should automatically use the `wit_get_work_items_batch_by_ids` tool to fetch work item details.
+📽️ [Azure Cline MCP Server: Consultar backlog](https://youtu.be/LouuyoscNrI)
 
-📽️ [Azure DevOps MCP Server: Get backlog](https://youtu.be/LouuyoscNrI)
+### Consultar e Editar Work Items
 
-### Retrieve and Edit Work Items
-
-Get a work item, get the work item comments, update the work item fields, and add a new comment.
+Obtenha um work item, seus comentários, atualize campos e adicione novos comentários:
 
 ```text
-Get work item 12345 and show me fields ID, Type, State, Repro Steps, Story Points, and Priority. Get all comments for the work item and summarize them for me.
+consultar work item 12345 mostrando campos ID, Tipo, Estado, Repro Steps, Story Points e Prioridade. Listar todos os comentários e resumir
 ```
 
-The model now has context of the work item. You can then update specific fields. In this case, we want the LLM to generate a better set of Repro Steps and then update the work item with those new steps. Along with updating the Story Points and State fields.
+Depois, você pode atualizar campos específicos. Exemplo: gerar Repro Steps mais detalhados e atualizar Story Points e Estado:
 
 ```text
-Polish the Repro Steps with more information and details. Then take that value and update the work item. Also update StoryPoints = 5 and State = Active.
+melhorar Repro Steps com mais detalhes. Atualizar work item com esses Repro Steps, StoryPoints = 5 e Estado = Ativo
 ```
 
-Assign the work item to me and add a new comment.
+Atribua o work item a você e adicione um comentário:
 
 ```text
-Assign this work item to myemail@outlook.com and add a comment "I will own this Bug and get it fixed"
+atribuir work item 12345 para meuemail@outlook.com e adicionar comentário "Vou assumir este bug e corrigir"
 ```
 
-📽️ [Azure DevOps MCP Server: Work with Work Items](https://youtu.be/tT7wqSIPKdA)
+📽️ [Azure Cline MCP Server: Trabalhando com Work Items](https://youtu.be/tT7wqSIPKdA)
 
-### Create and Link Test Cases
+### Criar e Vincular Test Cases
 
-Open a user story and automatically generate test cases with detailed steps based on the story's description. Link the generated test cases back to the original user story.
+Abra uma user story e gere automaticamente Test Cases detalhados com base na descrição da história. Vincule os testes gerados de volta à User Story:
 
 ```text
-Open work item 1234 in 'Contoso' project. Then look at the description and create 1-3 Test Cases with test steps. But show me a preview first before creating the Test Case in Azure DevOps. Be sure to link the new Test Case to the User Story 1234 when you do.
+abrir work item 1234 no projeto 'Contoso'. Analisar descrição e criar 1-3 Test Cases com passos de teste. Mostrar prévia antes de criar no Azure DevOps. Vincular o Test Case à User Story 1234
 ```
 
-📽️ [Azure DevOps MCP Server: Creating Test Cases from Work Item](https://youtu.be/G7fnYjlSh_w)
+📽️ [Azure Cline MCP Server: Criando Test Cases a partir de Work Item](https://youtu.be/G7fnYjlSh_w)
 
-### Triage Work
+### Triagem de Work Items
 
-Retrieve all work items in a backlog and triage them according to your own criteria. For example, you can fetch all bugs and user stories, identify security-related bugs, and assign them to the current team iteration. Similarly, you can select a few high-priority user stories and assign them to the most recent iteration.
-
-Retrieve the team's iterations and backlog levels to provide the LLM with the necessary context for accurate work item management.
+Recupere todos os work items de um backlog e faça a triagem conforme seus critérios:
 
 ```text
-list iterations for Contoso team
+listar iterações para equipe Contoso
 ```
 
 ```text
-list backlog levels for Contoso team
+listar níveis de backlog para equipe Contoso
 ```
 
-Retrieve the work items and their details, then instruct the LLM to identify security-related bugs and high-priority user stories. Assign the identified items to the current iteration and, if needed, to the next iteration.
+Depois, instrua o modelo a identificar bugs de segurança e histórias de alta prioridade. Atribua os itens à iteração atual ou à próxima se necessário:
 
 ```text
-List of work items for Stories backlog. But then go thru and find all the security related bugs. Assign the first 4 to the current iteration. If there are more than four, assign the rest to the next iteration. Then find 2-3 high priority user stories and assign them to the current iteration. Do it!
+listar work items do backlog Stories. Identificar todos os bugs relacionados à segurança. Atribuir os 4 primeiros para a iteração atual. Se houver mais de 4, atribuir o restante para a próxima iteração. Encontrar 2-3 histórias de alta prioridade e atribuir à iteração atual. Executar!
 ```
 
-📽️ [Azure DevOps MCP Server: Triage Work](https://youtu.be/gCI_pPS76C8)
+📽️ [Azure Cline MCP Server: Triagem de Work Items](https://youtu.be/gCI_pPS76C8)
 
-### Adding and Updating Work Items Using the `format` Paramater
+### Adicionando e Atualizando Work Items Usando o Parâmetro `format`
 
-You can use the `format` paramater to indicate markdown formatting for large text fields. It is now available on the following tools:
+O parâmetro `format` indica se campos de texto longo devem usar Markdown. Disponível para:
 
-- **wit_update_work_items_batch**
-- **wit_add_child_work_items**
-- **wit_create_work_item**
+* **wit\_update\_work\_items\_batch**
+* **wit\_add\_child\_work\_items**
+* **wit\_create\_work\_item**
 
-> 🚩 HTML is the default unless `Markdown` is explicity set.
+> 🚩 HTML é o padrão, a menos que `Markdown` seja explicitamente definido.
 
 ```text
-Update work item 12345 with a new description and use Markdown text. Use Markdown format param. Use bulk update.
+atualizar work item 12345 com nova descrição usando texto em Markdown. Usar parâmetro format Markdown e atualização em lote
 ```
 
-📽️ [Azure DevOps MCP Server: Using Markdown format for create and update work items](https://youtu.be/OD4c2m7Fj9U)
+📽️ [Azure Cline MCP Server: Usando Markdown para criar e atualizar Work Items](https://youtu.be/OD4c2m7Fj9U)
 
-### Remove One or More Links from a Work Item
+### Remover um ou Mais Links de um Work Item
 
-Use this tool to remove one or more links from a work item, either by specifying individual links or by link type.
-
-First, retrieve the work item whose links you want to remove:
+Recupere o work item cujos links deseja remover:
 
 ```text
-Get work item 1234 in Contoso project and show me the relations
+consultar work item 1234 no projeto Contoso mostrando relações
 ```
 
-Next, remove a specific link to a work item, pull request, etc. or remove links by type (for example, "related"):
+Remova links específicos ou por tipo:
 
 ```text
-Remove link 5678 and 91011 from work item 1234. Also remove any related links and links to pull request 121314
+remover links 5678 e 91011 do work item 1234. Remover também links relacionados e links para pull request 121314
 ```
 
-### 🔗 Adding Artifact Links
+---
 
-### Add Artifact Links to Work Items
+### 🔗 Adicionando Links de Artefatos
 
-Use this tool to associate work items with repository artifacts such as branches, commits, and pull requests.
+Associe work items a artefatos do repositório (branches, commits, pull requests). Você pode:
 
-You have two options for linking artifacts:
-
-Supply the complete artifact `vstfs` URI in the required format. For example:
+1. Fornecer o URI completo no formato `vstfs`:
 
 **Branch**:
 `vstfs:///Git/Ref/{projectId}%2F{repositoryId}%2FGB{branchName}`
@@ -174,46 +170,49 @@ Supply the complete artifact `vstfs` URI in the required format. For example:
 `vstfs:///Git/PullRequestId/{projectId}%2F{repositoryId}%2F{pullRequestId}`
 
 ```text
-Add a branch artifact link to work item 1234 in project "Contoso" with URI "vstfs:///Git/Ref/12341234-1234-1234-1234-123412341234%2F12341234-1234-1234-1234-123412341234%2FGBmain" and link type "Branch" with comment "Linked to main branch for GitHub Copilot integration"
+adicionar link de branch ao work item 1234 no projeto "Contoso" com URI "vstfs:///Git/Ref/12341234-1234-1234-1234-123412341234%2F12341234-1234-1234-1234-123412341234%2FGBmain" e tipo de link "Branch" com comentário "Vinculado à branch principal para integração com Cline"
 ```
 
-Alternatively, you can simply provide the branch, commit, pull request, or build identifiers directly, and the tool will automatically construct the required artifact URI for you.
+2. Ou fornecer apenas branch, commit, pull request ou build IDs; o sistema constrói automaticamente o URI.
 
-For example:
+Exemplo:
 
 ```text
-Get me the list of pull requests for Constoso project and Frabrikam repo. Then link the first pull request to work item 12345.
+listar pull requests para projeto Contoso e repositório Fabrikam. Vincular o primeiro pull request ao work item 12345
 ```
 
-📽️ [Azure Devops MCP Server: Adding artifact links](https://youtu.be/t8HqEt8cZtY)
+📽️ [Azure Cline MCP Server: Adicionando links de artefatos](https://youtu.be/t8HqEt8cZtY)
+
+---
 
 ## 📖 Wiki
 
-### Reading, Creating, and Updating Wiki Page Content
+### Lendo, Criando e Atualizando Conteúdo de Wiki
 
-You can read, create, and update wiki pages in Azure DevOps. Follow these steps:
-
-1. Retrieve the list of wikis in your project.
-2. Get the pages available in a specific wiki.
-3. Read the content of an existing wiki page.
-4. Update the content of a wiki page or create a new page.
+1. Listar wikis do projeto:
 
 ```text
-Get list of wikis in project Contoso.
+listar wikis no projeto Contoso
 ```
+
+2. Listar páginas de um wiki específico:
 
 ```text
-Get list of pages for Fabrikam wiki.
+listar páginas do wiki Fabrikam
 ```
+
+3. Ler o conteúdo de uma página existente:
 
 ```text
-Get wiki page 'sample-page-name' content. Review and suggest improvements, then update the page with the revised content.
+ler conteúdo da página 'nome-da-pagina' do wiki. Revisar e sugerir melhorias, depois atualizar a página
 ```
+
+4. Criar uma nova página:
 
 ```text
-Create new wiki page called 'how to bake a cake' and add the following content:
+criar nova página 'como assar um bolo' no wiki e adicionar o seguinte conteúdo:
 
-<content>
+<conteúdo>
 ```
 
-📽️ [Azure Devops MCP Server: Reading, creating, and updating wiki pages](https://youtu.be/z_WQ_QefpGU)
+📽️ [Azure Cline MCP Server: Lendo, criando e atualizando páginas de wiki](https://youtu.be/z_WQ_QefpGU)

@@ -95,28 +95,41 @@ function configureCoreTools(server: McpServer, tokenProvider: () => Promise<Acce
     CORE_TOOLS.get_identity_ids,
     "Retrieve Azure DevOps identity IDs for a provided search filter.",
     {
-      searchFilter: z.string().describe("Search filter (unique namme, display name, email) to retrieve identity IDs for."),
+      searchFilter: z.string().describe(
+        "Search filter (unique name, display name, email) to retrieve identity IDs for."
+      ),
+      ado_org: z.string().describe("Azure DevOps organization name (e.g. 'contoso')"),
+      pat: z.string().describe("Personal Access Token (PAT)"),
     },
-    async ({ searchFilter }) => {
+    async ({ searchFilter, ado_org, pat }) => {
       try {
-        const identities = await searchIdentities(searchFilter, tokenProvider, connectionProvider, userAgentProvider);
+        // Aqui chamamos a searchIdentities usando apenas connectionProvider
+        // Se quiser, você pode passar um PAT explícito como fallback
+        const connection = await connectionProvider();
+        const identities = await searchIdentities(
+          searchFilter,
+          ado_org,
+          userAgentProvider()
+        );
 
-        if (!identities || identities.value?.length === 0) {
-          return { content: [{ type: "text", text: "No identities found" }], isError: true };
+        if (!identities?.value || identities.value.length === 0) {
+          return {
+            content: [{ type: "text", text: "No identities found" }],
+            isError: true,
+          };
         }
 
-        const identitiesTrimmed = identities.value?.map((identity: IdentityBase) => {
-          return {
-            id: identity.id,
-            displayName: identity.providerDisplayName,
-            descriptor: identity.descriptor,
-          };
-        });
+        const identitiesTrimmed = identities.value.map((identity: IdentityBase) => ({
+          id: identity.id,
+          displayName: identity.providerDisplayName,
+          descriptor: identity.descriptor,
+        }));
 
         return {
           content: [{ type: "text", text: JSON.stringify(identitiesTrimmed, null, 2) }],
         };
       } catch (error) {
+        // Captura qualquer erro, incluindo falha no tokenProvider interno
         const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
 
         return {
@@ -126,6 +139,8 @@ function configureCoreTools(server: McpServer, tokenProvider: () => Promise<Acce
       }
     }
   );
+
+
 }
 
 export { CORE_TOOLS, configureCoreTools };

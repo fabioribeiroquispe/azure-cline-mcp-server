@@ -6,25 +6,5 @@ resource: repository
 where:
 configuration:
   manageAccess:
-    - member: Novaes
+    - member: fabioribeiroquispe
       role: Maintain
-    - member: danhellem
-      role: Maintain
-    - member: aaudzei
-      role: Maintain
-    - member: kboom
-      role: Maintain
-    - member: skmanoj
-      role: Write
-    - member: KathanS
-      role: Write
-    - member: vinayakmsft
-      role: Write
-    - member: nikolapeja6
-      role: Write
-    - member: egor-bryzgalov
-      role: Write
-    - member: polatengin
-      role: Write
-    - member: mkonjikovac
-      role: Write

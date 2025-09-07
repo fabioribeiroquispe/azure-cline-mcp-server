@@ -62,7 +62,7 @@ function getLinkTypeFromName(name: string) {
   }
 }
 
-function configureWorkItemTools(server: McpServer, tokenProvider: () => Promise<AccessToken>, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
+export function configureWorkItemTools(server: McpServer, tokenProvider: () => Promise<AccessToken>, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
   server.tool(
     WORKITEM_TOOLS.list_backlogs,
     "Revieve a list of backlogs for a given project and team.",
@@ -1030,4 +1030,4 @@ function configureWorkItemTools(server: McpServer, tokenProvider: () => Promise<
   );
 }
 
-export { WORKITEM_TOOLS, configureWorkItemTools };
+export { WORKITEM_TOOLS };

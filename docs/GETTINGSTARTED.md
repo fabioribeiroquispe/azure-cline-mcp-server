@@ -1,288 +1,172 @@
-# 🚀 Getting Started with Azure DevOps MCP Server
+# 🚀 Guia Visual Completo: Azure Cline DevOps MCP Server
 
-This guide will help you get started with the Azure DevOps MCP Server in different environments.
+> ⚠️ Adaptado do [Azure DevOps MCP Server da Microsoft](https://github.com/microsoft/azure-devops-mcp) para **Cline**, **Claude** e **autenticação via PAT**.
 
-- [Prerequisites](#-prerequisites)
-- [Getting started with Visual Studio Code & GitHub Copilot](#️-visual-studio-code--github-copilot)
-- [Getting started with Visual Studio 2022 & GitHub Copilot](#-visual-studio-2022--github-copilot-1)
-- [Getting started with Claude Code](#-using-mcp-server-with-claude-code)
-- [Getting started with Claude Desktop](#️-using-mcp-server-with-claude-desktop)
-- [Getting started with Cursor](#-using-mcp-server-with-cursor)
-- [Optimizing Your Experience](#-optimizing-your-experience)
+---
 
-## 🕐 Prerequisites
+<details>
+<summary>🕐 Pré-requisitos</summary>
 
-For the best experience, use Visual Studio Code and GitHub Copilot.
+### Visual Studio Code / Insiders
 
-Before you begin, make sure you have:
+* [VS Code](https://code.visualstudio.com/download) ou [VS Code Insiders](https://code.visualstudio.com/insiders)
+* [Node.js 20+](https://nodejs.org/en/download)
+* PAT configurado no Azure DevOps
+* Pasta de projeto vazia para abrir no VS Code
 
-### For Visual Studio Code
+### Visual Studio 2022
 
-1. Install [VS Code](https://code.visualstudio.com/download) or [VS Code Insiders](https://code.visualstudio.com/insiders)
-2. Install [Node.js](https://nodejs.org/en/download) 20+
-3. Install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
-4. Open VS Code in an empty folder
+* [Visual Studio 2022 v17.14+](https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history)
+* PAT configurado
 
-### For Visual Studio 2022
+### Cline / Claude / Cursor
 
-1. Install [VS Studio 2022 version 17.14](https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history) or later
-2. Install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
-3. Open a project in Visual Studio
+* Extensões MCP instaladas
+* Acesso à configuração de MCP Servers
 
-### Azure CLI Login
+</details>
 
-Ensure you are logged in to Azure DevOps via the Azure CLI:
+---
 
-```sh
-az login
-```
+<details>
+<summary>🍕 Instalação - VS Code + Cline</summary>
 
-## 🍕 Installation Options
+### ✨ Instalação com um clique
 
-### ➡️ Visual Studio Code & GitHub Copilot
+[![VS Code](https://img.shields.io/badge/VS_Code-Install_AzureClineDevOps_MCP_Server-0098FF?style=flat-square\&logo=visualstudiocode\&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&config=%7B%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22azure-cline-mcp-server%22%2C%20%22%24%7Binput%3Aado_org%7D%22%2C%20%22%24%7Binput%3Apat%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Nome%20da%20organiza%C3%A7%C3%A3o%20Azure%20DevOps%20%28ex.%20%27contoso%27%29%22%7D,%7B%22id%22%3A%20%22pat%22%2C%22type%22%3A%20%22promptString%22%2C%22description%22%3A%22Personal%20Access%20Token%20%28PAT%29%22%7D%5D)
 
-For the best experience, use Visual Studio Code and GitHub Copilot.
 
-#### ✨ One-Click Install
+> Após a instalação, selecione **Modo Act** no Cline e atualize a lista de ferramentas.
 
-[![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-Install_AzureDevops_MCP_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&config=%7B%20%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22%40azure-devops%2Fmcp%22%2C%20%22%24%7Binput%3Aado_org%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Azure%20DevOps%20organization%20name%20%20%28e.g.%20%27contoso%27%29%22%7D%5D)
-[![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install_AzureDevops_MCP_Server-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&quality=insiders&config=%7B%20%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22%40azure-devops%2Fmcp%22%2C%20%22%24%7Binput%3Aado_org%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Azure%20DevOps%20organization%20name%20%20%28e.g.%20%27contoso%27%29%22%7D%5D)
+---
 
-After installation, select GitHub Copilot Agent Mode and refresh the tools list. Learn more about Agent Mode in the [VS Code Documentation](https://code.visualstudio.com/docs/copilot/chat/chat-agent-mode).
+### 🧨 Instalação via Feed Público
 
-#### 🧨 Install from Public Feed (Recommended)
-
-This installation method is the easiest for all users of Visual Studio Code.
-
-🎥 [Watch this quick start video to get up and running in under two minutes!](https://youtu.be/EUmFM6qXoYk)
-
-##### Steps
-
-In your project, add a `.vscode\mcp.json` file with the following content:
+1. Crie `.vscode/mcp.json` no projeto:
 
 ```json
 {
   "inputs": [
-    {
-      "id": "ado_org",
-      "type": "promptString",
-      "description": "Azure DevOps organization name  (e.g. 'contoso')"
-    }
+    { "id": "ado_org", "type": "promptString", "description": "Nome da organização do Azure DevOps (ex.: 'contoso')" },
+    { "id": "pat", "type": "promptString", "description": "Personal Access Token (PAT)" }
   ],
   "servers": {
-    "ado": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@azure-devops/mcp", "${input:ado_org}"]
-    }
+    "ado": { "type": "stdio", "command": "npx", "args": ["-y", "azure-cline-mcp-server", "${input:ado_org}", "${input:pat}"] }
   }
 }
 ```
 
-Save the file, then click 'Start'.
+2. Salve e clique em **Iniciar**
+3. Alterne para **Modo Act**
+4. Clique em **Selecionar Ferramentas**
 
-![start mcp server](../docs/media/start-mcp-server.gif)
 
-In chat, switch to [Agent Mode](https://code.visualstudio.com/blogs/2025/02/24/introducing-copilot-agent-mode).
+> Crie `.github/copilot-instructions.md` com instruções do projeto para melhorar a experiência MCP Server.
 
-Click "Select Tools" and choose the available tools.
+</details>
 
-![configure mcp server tools](../docs/media/configure-mcp-server-tools.gif)
+---
 
-> 💥 We strongly recommend creating a `.github\copilot-instructions.md` in your project and copying the contents from this [copilot-instructions.md](../.github/copilot-instructions.md) file. This will enhance your experience using the Azure DevOps MCP Server with GitHub Copilot Chat.
+<details>
+<summary>⚙️ Configuração do MCP Server</summary>
 
-##### Start using it
+### Global
 
-1. Open GitHub Copilot in VS Code and switch to Agent mode.
-2. Start the Azure DevOps MCP Server.
-3. The server appears in the tools list.
-4. Try prompts like "List ADO projects".
+1. **MCP Servers → Installed → Advanced MCP Settings**
+2. Em `Cline>Mcp:Mode`, escolha: permitir / restringir / desabilitar
 
-#### 🛠️ Install from Source (Dev Mode)
 
-This installation method is recommended for advanced users and contributors who want immediate access to the latest updates from the main branch. It is ideal if you are developing new tools, enhancing existing features, or maintaining a custom fork.
+### Individual
 
-> **Note:** For most users, installing from the public feed is simpler and preferred. Use the source installation only if you need the latest changes or are actively contributing to the project.
+* Deletar → ícone da lixeira
+* Reiniciar → botão Restart
+* Habilitar/Desabilitar → toggle switch
+* Timeout → `Network Timeout`
 
-##### Steps
 
-Clone the repository.
-
-Install dependencies:
-
-```sh
-npm install
-```
-
-Edit or add `.vscode/mcp.json`:
-
-```json
-{
-  "inputs": [
-    {
-      "id": "ado_org",
-      "type": "promptString",
-      "description": "Azure DevOps organization's name  (e.g. 'contoso')"
-    }
-  ],
-  "servers": {
-    "ado": {
-      "type": "stdio",
-      "command": "mcp-server-azuredevops",
-      "args": ["${input:ado_org}"]
-    }
-  }
-}
-```
-
-Start the Azure DevOps MCP Server.
-
-![start mcp server](../docs/media/start-mcp-server.gif)
-
-In chat, switch to [Agent Mode](https://code.visualstudio.com/blogs/2025/02/24/introducing-copilot-agent-mode).
-
-Click "Select Tools" and choose the available tools.
-
-![configure mcp server tools](../docs/media/configure-mcp-server-tools.gif)
-
-> 💥 We strongly recommend creating a `.github\copilot-instructions.md` in your project and copying the contents from this [copilot-instructions.md](../.github/copilot-instructions.md) file. This will help you get the best experience using the Azure DevOps MCP Server in GitHub Copilot Chat.
-
-### ➡️ Visual Studio 2022 & GitHub Copilot
-
-For the best experience, use Visual Studio Code and GitHub Copilot 👆.
-
-#### 🧨 Install from Public Feed (Recommended)
-
-This installation method is the easiest for all users of Visual Studio 2022.
-
-🎥 [Watch this quick start video to get up and running in under two minutes!](https://youtu.be/nz_Gn-WL7j0)
-
-##### Steps
-
-Add a `.mcp.json` file to the solution folder with the following content:
-
-```json
-{
-  "inputs": [
-    {
-      "id": "ado_org",
-      "type": "promptString",
-      "description": "Azure DevOps organization name  (e.g. 'contoso')"
-    }
-  ],
-  "servers": {
-    "ado": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@azure-devops/mcp", "${input:ado_org}"]
-    }
-  }
-}
-```
-
-Save the file.
-
-Add your organization name by clicking on the `input` option.
-
-![start mcp server from visual studio 2022](../docs/media/start-mcp-server-from-vs.png)
-
-Open Copilot chat and switch to [Agent Mode](https://learn.microsoft.com/en-us/visualstudio/ide/copilot-agent-mode?view=vs-2022).
-
-Click the "Tools" icon and choose the available tools.
-
-![set tools to use in visual studio 2022](../docs/media/set-tools-from-vs.png)
-
-> 💥 We strongly recommend creating a `.github\copilot-instructions.md` in your project and copying the contents from this [copilot-instructions.md](../.github/copilot-instructions.md) file. This will enhance your experience using the Azure DevOps MCP Server with GitHub Copilot Chat.
-
-##### Start using it
-
-> _Prerequisites:_ Visual Studio 2022 v17.14+, Agent mode enabled in Tools > Options > GitHub > Copilot > Copilot Chat.
-
-1. Switch to Agent mode in the Copilot Chat window.
-2. Enter your Azure DevOps organization name.
-3. Select desired `ado` tools.
-4. Try prompts like "List ADO projects".
-
-For more details, see [Visual Studio MCP Servers documentation](https://learn.microsoft.com/en-us/visualstudio/ide/mcp-servers?view=vs-2022) and the [Getting Started Video](https://www.youtube.com/watch?v=oPFecZHBCkg).
-
-### 🤖 Using MCP Server with Claude Code
-
-See https://docs.anthropic.com/en/docs/claude-code/mcp for general guidance on adding MCP Server to Claude Code experience.
-
-For the Azure DevOps MCP Server, use the following command:
-
-```bash
-claude mcp add azure-devops -- npx -y @azure-devops/mcp Contoso
-```
-
-Replace `Contoso` with your own organization name
-
-### ✴️ Using MCP Server with Claude Desktop
-
-Ensure you are logged in to Azure DevOps using the Azure CLI:
-
-```sh
-az login
-```
-
-Open Claude Desktop and navigate to **File > Settings > Developer**. Click **Edit Config**.
-
-![Configuring MCP servers in Claude Desktop](../docs/media/claude-desktop-getting-started-1.png)
-
-Open the configuration file in your preferred editor (e.g., VS Code) and add the following JSON:
+### Arquivo `cline_mcp_settings.json`
 
 ```json
 {
   "mcpServers": {
     "ado": {
       "command": "npx",
-      "args": ["-y", "@azure-devops/mcp", "{Contoso}"]
+      "args": ["-y", "azure-cline-mcp-server", "${input:ado_org}", "${input:pat}"],
+      "alwaysAllow": ["tool1", "tool2"],
+      "disabled": false
     }
   }
 }
 ```
 
-Replace `{Contoso}` with your Azure DevOps organization name. Save the file and perform a hard restart of the Claude app.
+</details>
 
-Start a new chat, then click the **Search and Tools** icon. The `ado` toolset should now be available.
+---
 
-![ADO tools in Claude Desktop](../docs/media/claude-desktop-getting-started-2.png)
+<details>
+<summary>🛠️ Usando Ferramentas MCP</summary>
 
-You’re ready to start using the Azure DevOps MCP Server in Claude Desktop. Try a simple request such as: `get list of ado projects`.
+1. Digite sua solicitação no Cline / Claude / Cursor
+2. MCP Server detecta ferramentas disponíveis
+3. Aprove ou configure auto-approval
 
-For additional guidance on Claude Desktop, see the [Quickstart](https://modelcontextprotocol.io/quickstart/user#installing-the-filesystem-server).
+**Exemplo:** `"Listar projetos ADO"`
 
-### 🍇 Using MCP Server with Cursor
+</details>
 
-To integrate the Azure DevOps MCP Server with Cursor, create a `.cursor\mcp.json` file and add your Azure DevOps organization to the `mcpServers` list.
+---
+
+<details>
+<summary>⚠️ Resolução de Problemas</summary>
+
+* **Servidor não responde:** verifique processo ativo
+* **Erro de permissão:** confira PAT
+* **Ferramenta não disponível:** servidor implementa a ferramenta?
+* **Performance lenta:** ajuste `Network Timeout`
+
+</details>
+
+---
+
+<details>
+<summary>💻 VS 2022</summary>
+
+1. Configure PAT no VS
+2. Execute `npx -y azure-cline-mcp-server <ADO_ORG> <PAT>`
+3. Abra MCP Server via Cline / plugin compatível
+
+</details>
+
+---
+
+<details>
+<summary>🤖 Claude Code / Desktop</summary>
 
 ```json
 {
   "mcpServers": {
     "ado": {
       "command": "npx",
-      "args": ["-y", "@azure-devops/mcp", "{Contoso}"]
+      "args": ["-y", "azure-cline-mcp-server", "<ADO_ORG>", "<PAT>"],
+      "alwaysAllow": ["tool1", "tool2"],
+      "disabled": false
     }
   }
 }
 ```
 
-Replace `{Contoso}` with your actual Azure DevOps organization name.
+* Reinicie Claude
+* Teste `"Listar projetos ADO"`
 
-Save the file, and when Cursor detects the MCP Server, click **Enable**.
+</details>
 
-![enable mcp server from cursor](../docs/media/enable-mcp-server-from-cursor.png)
+---
 
-#### Start the Azure DevOps MCP Server
+<details>
+<summary>🖱️ Cursor</summary>
 
-Open the terminal and start the MCP Server with:
+* Configure como **STDIO Server**
+* Args: `["-y", "azure-cline-mcp-server", "<ADO_ORG>", "<PAT>"]`
+* Teste comandos MCP
 
-```bash
-npx -y @azure-devops/mcp {Contoso}
-```
-
-Replace `Contoso` with your Azure DevOps organization.
-
-You can now use the Azure DevOps MCP Server tools directly in chat.
-
-📽️ [Azure DevOps MCP Server: Getting started with Cursor](https://youtu.be/550VPTnjYRg)
+</details>

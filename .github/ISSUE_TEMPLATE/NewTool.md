@@ -1,33 +1,35 @@
 ---
-name: Add new tool(s)
-about: Use this template to leverage AI to add the tools you want
+name: Adicionar nova(s) tool(s)
+about: Use este template para aproveitar a IA e adicionar as tools desejadas
 labels: enhancement, feature-request
 ---
 
-## Replace the content with your actual issue making sure to keep similar style so that GitHub Copilot can generate this change for you!
+## Nota: Este é um fork do projeto original **Microsoft Azure DevOps MCP Server**, adaptado por **fabioribeiroquispe** para funcionar com **Cline** e autenticação via **PAT**.
 
-# Summary
+# Resumo
 
-Implement two new tools that integrate with Azure DevOps APIs to enable search capabilities.
+Implementar novas tools que integrem com as APIs do Azure DevOps para habilitar buscas e outras tarefas de automação.
 
 # Tools
 
-Develop the following tools with full parameter support, including optional ones:
+Desenvolver as seguintes tools com suporte completo a parâmetros (incluindo opcionais):
 
-## `search_wiki`: Search Azure DevOps Wikis for relevant content.
+## `search_wiki`: Buscar conteúdos relevantes nos Wikis do Azure DevOps.
 
-Endpoint: POST https://almsearch.dev.azure.com/{organization}/{project}/_apis/search/wikisearchresults?api-version=7.2-preview.1
+Endpoint:  
+POST https://almsearch.dev.azure.com/{organization}/{project}/_apis/search/wikisearchresults?api-version=7.2-preview.1
 
-## `search_code`: Search Azure DevOps Repos for relevant code results.
+## `search_code`: Buscar resultados de código nos Repos do Azure DevOps.
 
-Endpoint: POST https://almsearch.dev.azure.com/{organization}/{project}/_apis/search/codesearchresults?api-version=7.2-preview.1
+Endpoint:  
+POST https://almsearch.dev.azure.com/{organization}/{project}/_apis/search/codesearchresults?api-version=7.2-preview.1
 
-# Rules
+# Regras
 
-1. Adhere strictly to existing project standards and coding conventions.
-2. Ensure each tool exposes all API parameters (required and optional).
-3. Use the official [Azure DevOps Node API](https://github.com/microsoft/azure-devops-node-api) to interact with the APIs.
+1. Seguir estritamente os padrões e convenções de código existentes no projeto.  
+2. Garantir que cada tool exponha todos os parâmetros da API (obrigatórios e opcionais).  
+3. Utilizar a biblioteca oficial [Azure DevOps Node API](https://github.com/microsoft/azure-devops-node-api) para interagir com as APIs.  
 
-# Special treat
+# Brinde especial 🎁
 
-If you follow the rules, you'll get candy!
+Se seguir as regras, você ganha um doce! 🍬

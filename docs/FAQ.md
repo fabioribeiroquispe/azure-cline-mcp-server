@@ -1,15 +1,15 @@
-# Frequently Asked Questions
+# Perguntas Frequentes
 
-Before you get started, ensure you follow the steps in the `README.md` file. This will help you get up and running and connected to your Azure DevOps organization.
+Antes de começar, certifique-se de seguir os passos do arquivo `README.md`. Isso ajudará você a se conectar e configurar sua organização no Azure DevOps.
 
-## Does the MCP Server support both Azure DevOps Services and on-premises deployments?
+## O MCP Server suporta tanto Azure DevOps Services quanto instalações on-premises?
 
-Currently, the MCP Server supports only Azure DevOps Services. Several required API endpoints are not yet available for on-premises deployments. Additionally, focusing on Azure DevOps Services during the public preview makes it easier to debug and deliver fixes.
+Atualmente, o MCP Server suporta apenas o Azure DevOps Services. Vários endpoints de API necessários ainda não estão disponíveis para instalações on-premises. Além disso, focar no Azure DevOps Services durante a prévia pública facilita a depuração e a entrega de correções.
 
-## Can I connect to more than one organization at a time?
+## Posso me conectar a mais de uma organização ao mesmo tempo?
 
-No, you can connect to only one organization at a time. However, you can switch organizations as needed.
+Não, você só pode se conectar a uma organização por vez. No entanto, é possível alternar entre organizações conforme necessário.
 
-## Can I set a default project instead of fetching the list every time?
+## Posso definir um projeto padrão em vez de buscar a lista toda vez?
 
-Currently, you need to fetch the list of projects so the LLM has context about the project name or ID. We plan to improve this experience in the future by leveraging prompts. In the meantime, you can set a default project name in your `copilot-instructions.md` file.
+Atualmente, é necessário buscar a lista de projetos para que o modelo tenha contexto sobre o nome ou ID do projeto. Planejamos melhorar essa experiência no futuro usando prompts. Enquanto isso, você pode definir um nome de projeto padrão no arquivo `cline-instructions.md`.

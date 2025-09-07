@@ -6,7 +6,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import * as azdev from "azure-devops-node-api";
-import { AccessToken, AzureCliCredential, ChainedTokenCredential, DefaultAzureCredential, TokenCredential } from "@azure/identity";
+import * as fs from 'fs';
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -15,15 +15,22 @@ import { configureAllTools } from "./tools.js";
 import { UserAgentComposer } from "./useragent.js";
 import { packageVersion } from "./version.js";
 import { DomainsManager } from "./shared/domains.js";
+import { getPatConnection } from "./tools/auth.js";
+import { WebApi } from "azure-devops-node-api";
 
 // Parse command line arguments using yargs
 const argv = yargs(hideBin(process.argv))
   .scriptName("mcp-server-azuredevops")
   .usage("Usage: $0 <organization> [options]")
   .version(packageVersion)
-  .command("$0 <organization> [options]", "Azure DevOps MCP Server", (yargs) => {
+  .command("$0 <organization> <pat> [options]", "Azure DevOps MCP Server", (yargs) => {
     yargs.positional("organization", {
       describe: "Azure DevOps organization name",
+      type: "string",
+      demandOption: true,
+    });
+    yargs.positional("pat", {
+      describe: "Personal Access Token for Azure DevOps",
       type: "string",
       demandOption: true,
     });
@@ -46,40 +53,15 @@ const argv = yargs(hideBin(process.argv))
 const tenantId = argv.tenant;
 
 export const orgName = argv.organization as string;
+const pat = argv.pat as string;
 const orgUrl = "https://dev.azure.com/" + orgName;
 
 const domainsManager = new DomainsManager(argv.domains);
 export const enabledDomains = domainsManager.getEnabledDomains();
 
-async function getAzureDevOpsToken(): Promise<AccessToken> {
-  if (process.env.ADO_MCP_AZURE_TOKEN_CREDENTIALS) {
-    process.env.AZURE_TOKEN_CREDENTIALS = process.env.ADO_MCP_AZURE_TOKEN_CREDENTIALS;
-  } else {
-    process.env.AZURE_TOKEN_CREDENTIALS = "dev";
-  }
-  let credential: TokenCredential = new DefaultAzureCredential(); // CodeQL [SM05138] resolved by explicitly setting AZURE_TOKEN_CREDENTIALS
-  if (tenantId) {
-    // Use Azure CLI credential if tenantId is provided for multi-tenant scenarios
-    const azureCliCredential = new AzureCliCredential({ tenantId });
-    credential = new ChainedTokenCredential(azureCliCredential, credential);
-  }
-
-  const token = await credential.getToken("499b84ac-1321-427f-aa17-267ca6975798/.default");
-  if (!token) {
-    throw new Error("Failed to obtain Azure DevOps token. Ensure you have Azure CLI logged in or another token source setup correctly.");
-  }
-  return token;
-}
-
-function getAzureDevOpsClient(userAgentComposer: UserAgentComposer): () => Promise<azdev.WebApi> {
+function getAzureDevOpsClient(userAgentComposer: UserAgentComposer, pat: string): () => Promise<WebApi> {
   return async () => {
-    const token = await getAzureDevOpsToken();
-    const authHandler = azdev.getBearerHandler(token.token);
-    const connection = new azdev.WebApi(orgUrl, authHandler, undefined, {
-      productName: "AzureDevOps.MCP",
-      productVersion: packageVersion,
-      userAgent: userAgentComposer.userAgent,
-    });
+    const connection = getPatConnection(orgName, pat);
     return connection;
   };
 }
@@ -97,7 +79,14 @@ async function main() {
 
   configurePrompts(server);
 
-  configureAllTools(server, getAzureDevOpsToken, getAzureDevOpsClient(userAgentComposer), () => userAgentComposer.userAgent, enabledDomains);
+  const tokenProvider = async () => {
+    // Since we are using PAT, we don't need to get a token from a credential chain.
+    // The PAT is directly used by getPatConnection.
+    // This dummy AccessToken is just to satisfy the interface.
+    return { token: pat, expiresOnTimestamp: Date.now() + 3600 * 1000 };
+  };
+
+  configureAllTools(server, tokenProvider, getAzureDevOpsClient(userAgentComposer, pat), () => userAgentComposer.userAgent, enabledDomains, orgName, pat);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

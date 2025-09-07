@@ -97,7 +97,7 @@ function filterReposByName(repositories: GitRepository[], repoNameFilter: string
   return filteredByName;
 }
 
-function configureRepoTools(server: McpServer, tokenProvider: () => Promise<AccessToken>, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
+function configureRepoTools(server: McpServer, tokenProvider: () => Promise<AccessToken>, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string, ado_org: string, pat: string) {
   server.tool(
     REPO_TOOLS.create_pull_request,
     "Create a new pull request.",
@@ -243,7 +243,7 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
 
       const filteredRepositories = repoNameFilter ? filterReposByName(repositories, repoNameFilter) : repositories;
 
-      const paginatedRepositories = filteredRepositories?.sort((a, b) => a.name?.localeCompare(b.name ?? "") ?? 0).slice(skip, skip + top);
+      const paginatedRepositories = filteredRepositories?.toSorted((a, b) => a.name?.localeCompare(b.name ?? "") ?? 0).slice(skip, skip + top);
 
       // Filter out the irrelevant properties
       const trimmedRepositories = paginatedRepositories?.map((repo) => ({
@@ -294,7 +294,11 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
 
       if (created_by_user) {
         try {
-          const userId = await getUserIdFromEmail(created_by_user, tokenProvider, connectionProvider, userAgentProvider);
+          const userId = await getUserIdFromEmail(
+            created_by_user,
+            ado_org,
+            userAgentProvider()
+          );
           searchCriteria.creatorId = userId;
         } catch (error) {
           return {
@@ -308,7 +312,8 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
           };
         }
       } else if (created_by_me || i_am_reviewer) {
-        const data = await getCurrentUserDetails(tokenProvider, connectionProvider, userAgentProvider);
+        const ua = userAgentProvider();
+        const data = await getCurrentUserDetails(ado_org, ua);
         const userId = data.authenticatedUser.id;
         if (created_by_me) {
           searchCriteria.creatorId = userId;
@@ -379,7 +384,12 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
 
       if (created_by_user) {
         try {
-          const userId = await getUserIdFromEmail(created_by_user, tokenProvider, connectionProvider, userAgentProvider);
+          const tokenObj = await tokenProvider();
+          const userId = await getUserIdFromEmail(
+            created_by_user,
+            ado_org,
+            userAgentProvider()
+          );
           gitPullRequestSearchCriteria.creatorId = userId;
         } catch (error) {
           return {
@@ -393,7 +403,7 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
           };
         }
       } else if (created_by_me || i_am_reviewer) {
-        const data = await getCurrentUserDetails(tokenProvider, connectionProvider, userAgentProvider);
+        const data = await getCurrentUserDetails(ado_org, userAgentProvider());
         const userId = data.authenticatedUser.id;
         if (created_by_me) {
           gitPullRequestSearchCriteria.creatorId = userId;
@@ -453,7 +463,7 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
 
       const threads = await gitApi.getThreads(repositoryId, pullRequestId, project, iteration, baseIteration);
 
-      const paginatedThreads = threads?.sort((a, b) => (a.id ?? 0) - (b.id ?? 0)).slice(skip, skip + top);
+      const paginatedThreads = threads?.toSorted((a, b) => (a.id ?? 0) - (b.id ?? 0)).slice(skip, skip + top);
 
       if (fullResponse) {
         return {
@@ -495,7 +505,7 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
       // Get thread comments - GitApi uses getComments for retrieving comments from a specific thread
       const comments = await gitApi.getComments(repositoryId, pullRequestId, threadId, project);
 
-      const paginatedComments = comments?.sort((a, b) => (a.id ?? 0) - (b.id ?? 0)).slice(skip, skip + top);
+      const paginatedComments = comments?.toSorted((a, b) => (a.id ?? 0) - (b.id ?? 0)).slice(skip, skip + top);
 
       if (fullResponse) {
         return {
