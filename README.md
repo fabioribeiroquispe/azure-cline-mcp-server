@@ -152,41 +152,37 @@ Interact with these Azure DevOps services:
 
 ## 🔌 Installation & Getting Started
 
-For the best experience, use Visual Studio Code and GitHub Copilot. See the [getting started documentation](./docs/GETTINGSTARTED.md) to use our MCP Server with other tools such as Visual Studio 2022, Claude Code, and Cursor.
+This guide explains how to set up and configure the Azure DevOps MCP Server.
 
 ### Prerequisites
 
-1. Install [VS Code](https://code.visualstudio.com/download) or [VS Code Insiders](https://code.visualstudio.com/insiders)
-2. Install [Node.js](https://nodejs.org/en/download) 20+
-3. Install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
-4. Open VS Code in an empty folder
+1.  Install [VS Code](https://code.visualstudio.com/download) or [VS Code Insiders](https://code.visualstudio.com/insiders).
+2.  Install [Node.js](https://nodejs.org/en/download) 20+.
+3.  Open VS Code in an empty folder where you want to configure the server.
 
-### Azure Login
+### Authentication
 
-Ensure you are logged in to Azure DevOps via the Azure CLI:
+This server uses **Personal Access Token (PAT)** authentication exclusively. You must generate a PAT from your Azure DevOps organization to use this tool.
 
-```sh
-az login
-```
+**How to Generate a Personal Access Token (PAT):**
 
-### Installation
+1.  Log in to your Azure DevOps organization.
+2.  In the top right corner, go to **User settings** -> **Personal Access Tokens**.
+3.  Click **+ New Token**.
+4.  Give the token a name (e.g., `mcp-server-token`).
+5.  Select the organization.
+6.  Set the desired expiration date.
+7.  For **Scopes**, select **Full access**. This is the simplest option to ensure all tools work correctly.
+8.  Click **Create**.
+9.  **Important:** Copy the generated token immediately. You will not be able to see it again.
 
-#### ✨ One-Click Install
+### Installation and Configuration
 
-[![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-Install_AzureDevops_MCP_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&config=%7B%20%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22%40azure-devops%2Fmcp%22%2C%20%22%24%7Binput%3Aado_org%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Azure%20DevOps%20organization%20name%20%20%28e.g.%20%27contoso%27%29%22%7D%5D)
-[![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install_AzureDevops_MCP_Server-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&quality=insiders&config=%7B%20%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22%40azure-devops%2Fmcp%22%2C%20%22%24%7Binput%3Aado_org%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Azure%20DevOps%20organization%20name%20%20%28e.g.%20%27contoso%27%29%22%7D%5D)
+The server is configured via a `.vscode/mcp.json` file in your project folder.
 
-After installation, select GitHub Copilot Agent Mode and refresh the tools list. Learn more about Agent Mode in the [VS Code Documentation](https://code.visualstudio.com/docs/copilot/chat/chat-agent-mode).
+**1. Create the Configuration File:**
 
-#### 🧨 Install from Public Feed (Recommended)
-
-This installation method is the easiest for all users of Visual Studio Code.
-
-🎥 [Watch this quick start video to get up and running in under two minutes!](https://youtu.be/EUmFM6qXoYk)
-
-##### Steps
-
-In your project, add a `.vscode\mcp.json` file with the following content:
+In your project, create a `.vscode/mcp.json` file with the following content:
 
 ```json
 {
@@ -194,87 +190,136 @@ In your project, add a `.vscode\mcp.json` file with the following content:
     {
       "id": "ado_org",
       "type": "promptString",
-      "description": "Azure DevOps organization name  (e.g. 'contoso')"
-    }
-  ],
-  "servers": {
-    "ado": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@azure-devops/mcp", "${input:ado_org}"]
-    }
-  }
-}
-```
-
-🔥 To stay up to date with the latest features, you can use our nightly builds. Simply update your `mcp.json` configuration to use `@azure-devops/mcp@next`. Here is an updated example:
-
-```json
-{
-  "inputs": [
+      "description": "Azure DevOps organization name (e.g. 'contoso')"
+    },
     {
-      "id": "ado_org",
-      "type": "promptString",
-      "description": "Azure DevOps organization name  (e.g. 'contoso')"
+      "id": "ado_pat",
+      "type": "promptPassword",
+      "description": "Azure DevOps Personal Access Token"
     }
   ],
   "servers": {
     "ado": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@azure-devops/mcp@next", "${input:ado_org}"]
+      "args": [
+        "-y",
+        "azure-cline-mcp-server",
+        "${input:ado_org}",
+        "--pat",
+        "${input:ado_pat}"
+      ]
     }
   }
 }
 ```
 
-Save the file, then click 'Start'.
+**2. Start the Server:**
+
+- Save the `.vscode/mcp.json` file.
+- VS Code should automatically detect the file and show a status bar item to start the server. Click 'Start'.
+- When prompted, enter your Azure DevOps **organization name** and the **PAT** you generated.
 
 ![start mcp server](./docs/media/start-mcp-server.gif)
 
-In chat, switch to [Agent Mode](https://code.visualstudio.com/blogs/2025/02/24/introducing-copilot-agent-mode).
+**3. Enable Tools in your AI Assistant:**
 
-Click "Select Tools" and choose the available tools.
+- In your AI assistant (e.g., GitHub Copilot Chat), switch to Agent Mode.
+- Click "Select Tools" and choose the available tools (e.g., `ado:core_list_projects`).
 
 ![configure mcp server tools](./docs/media/configure-mcp-server-tools.gif)
 
-Open GitHub Copilot Chat and try a prompt like `List ADO projects`.
+### Using with Cline
 
-> 💥 We strongly recommend creating a `.github\copilot-instructions.md` in your project. This will enhance your experience using the Azure DevOps MCP Server with GitHub Copilot Chat.
-> To start, just include "`This project uses Azure DevOps. Always check to see if the Azure DevOps MCP server has a tool relevant to the user's request`" in your copilot instructions file.
+If you are using [Cline](https://docs.cline.bot/) as your AI assistant, the configuration process is different. Cline uses a central `cline_mcp_settings.json` file instead of the `.vscode/mcp.json` file.
 
-See the [getting started documentation](./docs/GETTINGSTARTED.md) to use our MCP Server with other tools such as Visual Studio 2022, Claude Code, and Cursor.
+**1. Open Cline MCP Settings:**
 
-## 🌏 Using Domains
+- In the Cline extension, click the "MCP Servers" icon in the top navigation bar.
+- Select the "Installed" tab.
+- Click the "Configure MCP Servers" button at the bottom of the pane to open the `cline_mcp_settings.json` file.
 
-Azure DevOps exposes a large surface area. As a result, our Azure DevOps MCP Server includes many tools. To keep the toolset manageable, avoid confusing the model, and respect client limits on loaded tools, use Domains to load only the areas you need. Domains are named groups of related tools (for example: core, work, work-items, repositories, wiki). Add the `-d` argument and the domain names to the server args in your `mcp.json` to list the domains to enable.
+**2. Add the Server Configuration:**
 
-For example, use `"-d", "core", "work", "work-items"` to load only Work Item related tools (see the example below).
+Add the following JSON object to the `mcpServers` list in your `cline_mcp_settings.json` file.
 
 ```json
-{
-  "inputs": [
-    {
-      "id": "ado_org",
-      "type": "promptString",
-      "description": "Azure DevOps organization name  (e.g. 'contoso')"
-    }
+"azure-devops": {
+  "command": "npx",
+  "args": [
+    "-y",
+    "azure-cline-mcp-server"
   ],
-  "servers": {
-    "ado": {
-      "type": "stdio",
-      "command": "mcp-server-azuredevops",
-      "args": ["${input:ado_org}", "-d", "core", "work", "work-items"]
-    }
-  }
+  "env": {
+    "ADO_ORG_NAME": "your_azure_devops_organization_name",
+    "ADO_PAT": "your_personal_access_token_here"
+  },
+  "disabled": false
 }
 ```
 
-Domains that are available are: `core`, `work`, `work-items`, `search`, `test-plans`, `repositories`, `wiki`, `builds`, `releases`, `advanced-security`
+**Important:**
+- Replace `your_azure_devops_organization_name` with your actual organization name.
+- Replace `your_personal_access_token_here` with the PAT you generated.
+- Make sure to add a comma if you are adding this server to an existing list of servers in the `mcpServers` object.
 
-We recommend that you always enable `core` tools so that you can fetch project level information.
+**3. Restart Cline:**
 
-> By default all domains are loaded
+After saving the `cline_mcp_settings.json` file, you may need to restart Cline or VS Code for the new server configuration to be loaded.
+
+### Configuration Details
+
+This section provides details for all the fields in the `.vscode/mcp.json` file.
+
+#### `inputs` Array
+
+This array defines the prompts that VS Code will show the user to gather necessary values.
+
+-   `id`: A unique identifier for the input. The value provided by the user is referenced in the `args` section using `${input:id}`.
+    -   `ado_org` (required): The name of your Azure DevOps organization.
+    -   `ado_pat` (required): The Personal Access Token for authentication.
+-   `type`: The type of prompt.
+    -   `promptString`: A standard text input field.
+    -   `promptPassword`: A text input field that masks the user's entry for security.
+-   `description`: The text displayed to the user in the prompt.
+
+#### `servers` Object
+
+This object defines the MCP server to be run.
+
+-   `ado`: A user-defined name for the server configuration.
+-   `type`: The transport protocol. Must be `stdio`.
+-   `command`: The command to execute to start the server.
+    -   `npx`: (Recommended for most users) Fetches and runs the latest version of the server package from the npm registry.
+    -   `mcp-server-azuredevops`: Use this if you have cloned this repository and are running the server from the local source code.
+-   `args`: An array of arguments passed to the command.
+    -   `"${input:ado_org}"`: The mandatory organization name, passed from the input prompt.
+    -   `"--pat", "${input:ado_pat}"`: The mandatory Personal Access Token, passed from the input prompt.
+    -   `"-d", "domain1", "domain2", ...`: (Optional) A list of tool domains to enable. This allows you to load only the tools you need. If omitted, all domains are loaded by default.
+
+#### Using Domains
+
+To keep the toolset manageable, you can load specific **domains** (groups of related tools). Add the `-d` flag followed by the domain names to the `args` array.
+
+**Example: Load only Work Item and Core tools**
+
+```json
+"args": [
+  "${input:ado_org}",
+  "--pat",
+  "${input:ado_pat}",
+  "-d",
+  "core",
+  "work-items"
+]
+```
+
+**Available Domains:**
+`core`, `work`, `work-items`, `search`, `test-plans`, `repositories`, `wiki`, `builds`, `releases`, `advanced-security`
+
+We recommend always including `core` as it provides essential project-level tools.
+
+> 💥 **Tip:** For an enhanced experience with GitHub Copilot Chat, create a `.github/copilot-instructions.md` file in your project and add the line: "`This project uses Azure DevOps. Always check to see if the Azure DevOps MCP server has a tool relevant to the user's request.`"
 
 ## 📝 Troubleshooting
 

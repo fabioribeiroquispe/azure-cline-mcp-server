@@ -21,13 +21,12 @@ import { WebApi } from "azure-devops-node-api";
 // Parse command line arguments using yargs
 const argv = yargs(hideBin(process.argv))
   .scriptName("mcp-server-azuredevops")
-  .usage("Usage: $0 <organization> [options]")
+  .usage("Usage: $0 <organization> --pat <personal_access_token> [options]")
   .version(packageVersion)
   .command("$0 <organization> <pat> [options]", "Azure DevOps MCP Server", (yargs) => {
     yargs.positional("organization", {
-      describe: "Azure DevOps organization name",
+      describe: "Azure DevOps organization name. Can also be set via ADO_ORG_NAME environment variable.",
       type: "string",
-      demandOption: true,
     });
     yargs.positional("pat", {
       describe: "Personal Access Token for Azure DevOps",
@@ -37,23 +36,28 @@ const argv = yargs(hideBin(process.argv))
   })
   .option("domains", {
     alias: "d",
-    describe: "Domain(s) to enable: 'all' for everything, or specific domains like 'repositories builds work'. Defaults to 'all'.",
+    describe: "Domain(s) to enable: 'all' for everything, or a list like 'repositories builds work'. Defaults to 'all'.",
     type: "string",
     array: true,
     default: "all",
   })
-  .option("tenant", {
-    alias: "t",
-    describe: "Azure tenant ID (optional, required for multi-tenant scenarios)",
+  .option("pat", {
+    describe: "Azure DevOps Personal Access Token. Can also be set via ADO_PAT environment variable.",
     type: "string",
   })
   .help()
   .parseSync();
 
-const tenantId = argv.tenant;
+const orgName = (argv.organization as string) || process.env.ADO_ORG_NAME;
+const pat = (argv.pat as string) || process.env.ADO_PAT;
 
-export const orgName = argv.organization as string;
-const pat = argv.pat as string;
+export const orgName = orgName;
+const orgUrl = "https://dev.azure.com/" + orgName;
+const orgName = (argv.organization as string) || process.env.ADO_ORG_NAME;
+const pat = (argv.pat as string) || process.env.ADO_PAT;
+
+export const orgName = orgName;
+const orgUrl = "https://dev.azure.com/" + orgName;
 const orgUrl = "https://dev.azure.com/" + orgName;
 
 const domainsManager = new DomainsManager(argv.domains);
@@ -86,7 +90,7 @@ async function main() {
     return { token: pat, expiresOnTimestamp: Date.now() + 3600 * 1000 };
   };
 
-  configureAllTools(server, tokenProvider, getAzureDevOpsClient(userAgentComposer, pat), () => userAgentComposer.userAgent, enabledDomains, orgName, pat);
+  configureAllTools(server, tokenProvider, getAzureDevOpsClient(userAgentComposer, pat), () => userAgentComposer.userAgent, enabledDomains, orgName, pat!);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

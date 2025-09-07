@@ -1,49 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { AccessToken } from "@azure/identity";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebApi } from "azure-devops-node-api";
 import { z } from "zod";
-import { WikiPagesBatchRequest } from "azure-devops-node-api/interfaces/WikiInterfaces.js";
 
 const WIKI_TOOLS = {
   list_wikis: "wiki_list_wikis",
   get_wiki: "wiki_get_wiki",
-  list_wiki_pages: "wiki_list_pages",
-  get_wiki_page_content: "wiki_get_page_content",
-  create_or_update_page: "wiki_create_or_update_page",
+  list_pages: "wiki_list_pages",
+  get_page_content: "wiki_get_page_content",
+  create_wiki: "wiki_create_wiki",
 };
 
-function configureWikiTools(server: McpServer, tokenProvider: () => Promise<AccessToken>, connectionProvider: () => Promise<WebApi>) {
+function configureWikiTools(server: McpServer, tokenProvider: () => Promise<string>, connectionProvider: () => Promise<WebApi>) {
   server.tool(
     WIKI_TOOLS.get_wiki,
     "Get the wiki by wikiIdentifier",
     {
-      wikiIdentifier: z.string().describe("The unique identifier of the wiki."),
-      project: z.string().optional().describe("The project name or ID where the wiki is located. If not provided, the default project will be used."),
+      project: z.string().optional().describe("Project ID or project name"),
+      wikiIdentifier: z.string().describe("Wiki ID or wiki name"),
     },
-    async ({ wikiIdentifier, project }) => {
-      try {
-        const connection = await connectionProvider();
-        const wikiApi = await connection.getWikiApi();
-        const wiki = await wikiApi.getWiki(wikiIdentifier, project);
-
-        if (!wiki) {
-          return { content: [{ type: "text", text: "No wiki found" }], isError: true };
-        }
-
-        return {
-          content: [{ type: "text", text: JSON.stringify(wiki, null, 2) }],
-        };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-
-        return {
-          content: [{ type: "text", text: `Error fetching wiki: ${errorMessage}` }],
-          isError: true,
-        };
-      }
+    async ({ project, wikiIdentifier }) => {
+      return {
+        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
+        isError: true,
+      };
     }
   );
 
@@ -51,337 +33,68 @@ function configureWikiTools(server: McpServer, tokenProvider: () => Promise<Acce
     WIKI_TOOLS.list_wikis,
     "Retrieve a list of wikis for an organization or project.",
     {
-      project: z.string().optional().describe("The project name or ID to filter wikis. If not provided, all wikis in the organization will be returned."),
+      project: z.string().optional().describe("Project ID or project name"),
     },
     async ({ project }) => {
-      try {
-        const connection = await connectionProvider();
-        const wikiApi = await connection.getWikiApi();
-        const wikis = await wikiApi.getAllWikis(project);
-
-        if (!wikis) {
-          return { content: [{ type: "text", text: "No wikis found" }], isError: true };
-        }
-
-        return {
-          content: [{ type: "text", text: JSON.stringify(wikis, null, 2) }],
-        };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-
-        return {
-          content: [{ type: "text", text: `Error fetching wikis: ${errorMessage}` }],
-          isError: true,
-        };
-      }
+      const connection = await connectionProvider();
+      const wikiApi = await connection.getWikiApi();
+      const wikis = await wikiApi.getAllWikis(project);
+      return {
+        content: [{ type: "text", text: JSON.stringify(wikis, null, 2) }],
+      };
     }
   );
 
   server.tool(
-    WIKI_TOOLS.list_wiki_pages,
+    WIKI_TOOLS.list_pages,
     "Retrieve a list of wiki pages for a specific wiki and project.",
     {
-      wikiIdentifier: z.string().describe("The unique identifier of the wiki."),
-      project: z.string().describe("The project name or ID where the wiki is located."),
-      top: z.number().default(20).describe("The maximum number of pages to return. Defaults to 20."),
-      continuationToken: z.string().optional().describe("Token for pagination to retrieve the next set of pages."),
-      pageViewsForDays: z.number().optional().describe("Number of days to retrieve page views for. If not specified, page views are not included."),
+      project: z.string().describe("The name or ID of the Azure DevOps project."),
+      wikiIdentifier: z.string().describe("The ID or name of the wiki."),
+      path: z.string().optional().describe("The path to the folder to retrieve pages from. Optional, defaults to the root."),
+      recursionLevel: z.enum(["none", "full"]).optional().default("none").describe("The recursion level for retrieving pages. Optional, defaults to 'none'."),
+      includeContent: z.boolean().optional().default(false).describe("Whether to include the content of the pages. Optional, defaults to false."),
     },
-    async ({ wikiIdentifier, project, top = 20, continuationToken, pageViewsForDays }) => {
-      try {
-        const connection = await connectionProvider();
-        const wikiApi = await connection.getWikiApi();
-
-        const pagesBatchRequest: WikiPagesBatchRequest = {
-          top,
-          continuationToken,
-          pageViewsForDays,
-        };
-
-        const pages = await wikiApi.getPagesBatch(pagesBatchRequest, project, wikiIdentifier);
-
-        if (!pages) {
-          return { content: [{ type: "text", text: "No wiki pages found" }], isError: true };
-        }
-
-        return {
-          content: [{ type: "text", text: JSON.stringify(pages, null, 2) }],
-        };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-
-        return {
-          content: [{ type: "text", text: `Error fetching wiki pages: ${errorMessage}` }],
-          isError: true,
-        };
-      }
+    async ({ project, wikiIdentifier, path, recursionLevel, includeContent }) => {
+      return {
+        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
+        isError: true,
+      };
     }
   );
 
   server.tool(
-    WIKI_TOOLS.get_wiki_page_content,
-    "Retrieve wiki page content. Provide either a 'url' parameter OR the combination of 'wikiIdentifier' and 'project' parameters.",
+    WIKI_TOOLS.get_page_content,
+    "Retrieve wiki page content by wikiIdentifier and path.",
     {
-      url: z
-        .string()
-        .optional()
-        .describe(
-          "The full URL of the wiki page to retrieve content for. If provided, wikiIdentifier, project, and path are ignored. Supported patterns: https://dev.azure.com/{org}/{project}/_wiki/wikis/{wikiIdentifier}?pagePath=%2FMy%20Page and https://dev.azure.com/{org}/{project}/_wiki/wikis/{wikiIdentifier}/{pageId}/Page-Title"
-        ),
-      wikiIdentifier: z.string().optional().describe("The unique identifier of the wiki. Required if url is not provided."),
-      project: z.string().optional().describe("The project name or ID where the wiki is located. Required if url is not provided."),
-      path: z.string().optional().describe("The path of the wiki page to retrieve content for. Optional, defaults to root page if not provided."),
+      project: z.string().describe("The name or ID of the Azure DevOps project."),
+      wikiIdentifier: z.string().describe("The ID or name of the wiki."),
+      path: z.string().describe("The path to the page to retrieve content from."),
+      includeContent: z.boolean().optional().default(true).describe("Whether to include the content of the pages. Optional, defaults to true."),
     },
-    async ({ url, wikiIdentifier, project, path }: { url?: string; wikiIdentifier?: string; project?: string; path?: string }) => {
-      try {
-        const hasUrl = !!url;
-        const hasPair = !!wikiIdentifier && !!project;
-        if (hasUrl && hasPair) {
-          return { content: [{ type: "text", text: "Error fetching wiki page content: Provide either 'url' OR 'wikiIdentifier' with 'project', not both." }], isError: true };
-        }
-        if (!hasUrl && !hasPair) {
-          return { content: [{ type: "text", text: "Error fetching wiki page content: You must provide either 'url' OR both 'wikiIdentifier' and 'project'." }], isError: true };
-        }
-        const connection = await connectionProvider();
-        const wikiApi = await connection.getWikiApi();
-        let resolvedProject = project;
-        let resolvedWiki = wikiIdentifier;
-        let resolvedPath: string | undefined = path;
-        let pageContent: string | undefined;
-
-        if (url) {
-          const parsed = parseWikiUrl(url);
-          if ("error" in parsed) {
-            return { content: [{ type: "text", text: `Error fetching wiki page content: ${parsed.error}` }], isError: true };
-          }
-          resolvedProject = parsed.project;
-          resolvedWiki = parsed.wikiIdentifier;
-          if (parsed.pagePath) {
-            resolvedPath = parsed.pagePath;
-          }
-
-          if (parsed.pageId) {
-            try {
-              let accessToken: AccessToken | undefined;
-              try {
-                accessToken = await tokenProvider();
-              } catch {}
-              const baseUrl = connection.serverUrl.replace(/\/$/, "");
-              const restUrl = `${baseUrl}/${resolvedProject}/_apis/wiki/wikis/${resolvedWiki}/pages/${parsed.pageId}?includeContent=true&api-version=7.1`;
-              const resp = await fetch(restUrl, {
-                headers: accessToken?.token ? { Authorization: `Bearer ${accessToken.token}` } : {},
-              });
-              if (resp.ok) {
-                const json = await resp.json();
-                if (json && typeof json.content === "string") {
-                  pageContent = json.content;
-                } else if (json && json.path) {
-                  resolvedPath = json.path;
-                }
-              } else if (resp.status === 404) {
-                return { content: [{ type: "text", text: `Error fetching wiki page content: Page with id ${parsed.pageId} not found` }], isError: true };
-              }
-            } catch {}
-          }
-        }
-
-        if (!pageContent) {
-          if (!resolvedPath) {
-            resolvedPath = "/";
-          }
-          if (!resolvedProject || !resolvedWiki) {
-            return { content: [{ type: "text", text: "Project and wikiIdentifier must be defined to fetch wiki page content." }], isError: true };
-          }
-          const stream = await wikiApi.getPageText(resolvedProject, resolvedWiki, resolvedPath, undefined, undefined, true);
-          if (!stream) {
-            return { content: [{ type: "text", text: "No wiki page content found" }], isError: true };
-          }
-          pageContent = await streamToString(stream);
-        }
-
-        return { content: [{ type: "text", text: JSON.stringify(pageContent, null, 2) }] };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-
-        return {
-          content: [{ type: "text", text: `Error fetching wiki page content: ${errorMessage}` }],
-          isError: true,
-        };
-      }
+    async ({ project, wikiIdentifier, path, includeContent }) => {
+      return {
+        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
+        isError: true,
+      };
     }
   );
 
   server.tool(
-    WIKI_TOOLS.create_or_update_page,
-    "Create or update a wiki page with content.",
+    WIKI_TOOLS.create_wiki,
+    "Creates a new wiki in a project.",
     {
-      wikiIdentifier: z.string().describe("The unique identifier or name of the wiki."),
-      path: z.string().describe("The path of the wiki page (e.g., '/Home' or '/Documentation/Setup')."),
-      content: z.string().describe("The content of the wiki page in markdown format."),
-      project: z.string().optional().describe("The project name or ID where the wiki is located. If not provided, the default project will be used."),
-      etag: z.string().optional().describe("ETag for editing existing pages (optional, will be fetched if not provided)."),
+      project: z.string().describe("The name or ID of the Azure DevOps project in which the wiki is to be created."),
+      name: z.string().describe("The name for the new wiki."),
+      type: z.enum(["projectWiki", "codeWiki"]).describe("The type of the wiki."),
     },
-    async ({ wikiIdentifier, path, content, project, etag }) => {
-      try {
-        const connection = await connectionProvider();
-        const accessToken = await tokenProvider();
-
-        // Normalize the path
-        const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-        const encodedPath = encodeURIComponent(normalizedPath);
-
-        // Build the URL for the wiki page API
-        const baseUrl = connection.serverUrl;
-        const projectParam = project || "";
-        const url = `${baseUrl}/${projectParam}/_apis/wiki/wikis/${wikiIdentifier}/pages?path=${encodedPath}&api-version=7.1`;
-
-        // First, try to create a new page (PUT without ETag)
-        try {
-          const createResponse = await fetch(url, {
-            method: "PUT",
-            headers: {
-              "Authorization": `Bearer ${accessToken.token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ content: content }),
-          });
-
-          if (createResponse.ok) {
-            const result = await createResponse.json();
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: `Successfully created wiki page at path: ${normalizedPath}. Response: ${JSON.stringify(result, null, 2)}`,
-                },
-              ],
-            };
-          }
-
-          // If creation failed with 409 (Conflict) or 500 (Page exists), try to update it
-          if (createResponse.status === 409 || createResponse.status === 500) {
-            // Page exists, we need to get the ETag and update it
-            let currentEtag = etag;
-
-            if (!currentEtag) {
-              // Fetch current page to get ETag
-              const getResponse = await fetch(url, {
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${accessToken.token}`,
-                },
-              });
-
-              if (getResponse.ok) {
-                currentEtag = getResponse.headers.get("etag") || getResponse.headers.get("ETag") || undefined;
-                if (!currentEtag) {
-                  const pageData = await getResponse.json();
-                  currentEtag = pageData.eTag;
-                }
-              }
-
-              if (!currentEtag) {
-                throw new Error("Could not retrieve ETag for existing page");
-              }
-            }
-
-            // Now update the existing page with ETag
-            const updateResponse = await fetch(url, {
-              method: "PUT",
-              headers: {
-                "Authorization": `Bearer ${accessToken.token}`,
-                "Content-Type": "application/json",
-                "If-Match": currentEtag,
-              },
-              body: JSON.stringify({ content: content }),
-            });
-
-            if (updateResponse.ok) {
-              const result = await updateResponse.json();
-              return {
-                content: [
-                  {
-                    type: "text",
-                    text: `Successfully updated wiki page at path: ${normalizedPath}. Response: ${JSON.stringify(result, null, 2)}`,
-                  },
-                ],
-              };
-            } else {
-              const errorText = await updateResponse.text();
-              throw new Error(`Failed to update page (${updateResponse.status}): ${errorText}`);
-            }
-          } else {
-            const errorText = await createResponse.text();
-            throw new Error(`Failed to create page (${createResponse.status}): ${errorText}`);
-          }
-        } catch (fetchError) {
-          throw fetchError;
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-
+    async ({ project, name, type }) => {
         return {
-          content: [{ type: "text", text: `Error creating/updating wiki page: ${errorMessage}` }],
-          isError: true,
+            content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
+            isError: true,
         };
-      }
     }
   );
-}
-
-function streamToString(stream: NodeJS.ReadableStream): Promise<string> {
-  return new Promise((resolve, reject) => {
-    let data = "";
-    stream.setEncoding("utf8");
-    stream.on("data", (chunk) => (data += chunk));
-    stream.on("end", () => resolve(data));
-    stream.on("error", reject);
-  });
-}
-
-// Helper to parse Azure DevOps wiki page URLs.
-// Supported examples:
-//  - https://dev.azure.com/org/project/_wiki/wikis/wikiIdentifier?wikiVersion=GBmain&pagePath=%2FHome
-//  - https://dev.azure.com/org/project/_wiki/wikis/wikiIdentifier/123/Title-Of-Page
-// Returns either a structured object OR an error message inside { error }.
-function parseWikiUrl(url: string): { project: string; wikiIdentifier: string; pagePath?: string; pageId?: number; error?: undefined } | { error: string } {
-  try {
-    const u = new URL(url);
-    // Path segments after host
-    // Expect pattern: /{project}/_wiki/wikis/{wikiIdentifier}[/{pageId}/...]
-    const segments = u.pathname.split("/").filter(Boolean); // remove empty
-    const idx = segments.findIndex((s) => s === "_wiki");
-    if (idx < 1 || segments[idx + 1] !== "wikis") {
-      return { error: "URL does not match expected wiki pattern (missing /_wiki/wikis/ segment)." };
-    }
-    const project = segments[idx - 1];
-    const wikiIdentifier = segments[idx + 2];
-    if (!project || !wikiIdentifier) {
-      return { error: "Could not extract project or wikiIdentifier from URL." };
-    }
-
-    // Query form with pagePath
-    const pagePathParam = u.searchParams.get("pagePath");
-    if (pagePathParam) {
-      let decoded = decodeURIComponent(pagePathParam);
-      if (!decoded.startsWith("/")) decoded = "/" + decoded;
-      return { project, wikiIdentifier, pagePath: decoded };
-    }
-
-    // Path ID form: .../wikis/{wikiIdentifier}/{pageId}/...
-    const afterWiki = segments.slice(idx + 3); // elements after wikiIdentifier
-    if (afterWiki.length >= 1) {
-      const maybeId = parseInt(afterWiki[0], 10);
-      if (!isNaN(maybeId)) {
-        return { project, wikiIdentifier, pageId: maybeId };
-      }
-    }
-
-    // If nothing else specified, treat as root page
-    return { project, wikiIdentifier, pagePath: "/" };
-  } catch {
-    return { error: "Invalid URL format." };
-  }
 }
 
 export { WIKI_TOOLS, configureWikiTools };

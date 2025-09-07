@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { AccessToken } from "@azure/identity";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebApi } from "azure-devops-node-api";
 import {
@@ -690,7 +689,7 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
         .number()
         .optional()
         .describe(
-          "Position of first character of the thread's span in right file. The line number of a thread's position. The character offset of a thread's position inside of a line. Starts at 1. Must only be set if rightFileStartLine is also specified. (optional)"
+          "Position of first character of the thread's span in right file. The character offset of a thread's position inside of a line. Starts at 1. Must only be set if rightFileStartLine is also specified. (optional)"
         ),
       rightFileEndLine: z
         .number()

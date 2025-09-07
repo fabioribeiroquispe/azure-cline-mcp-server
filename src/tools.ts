@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { AccessToken } from "@azure/identity";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebApi } from "azure-devops-node-api";
 
@@ -11,7 +10,7 @@ import { configureBuildTools } from "./tools/builds.js";
 import { configureCoreTools } from "./tools/core.js";
 import { configureReleaseTools } from "./tools/releases.js";
 import { configureRepoTools } from "./tools/repositories.js";
-import { configureSearchTools } from "./tools/search.js";
+// import { configureSearchTools } from "./tools/search.js";
 import { configureTestPlanTools } from "./tools/test-plans.js";
 import { configureWikiTools } from "./tools/wiki.js";
 import { configureWorkTools } from "./tools/work.js";
@@ -30,9 +29,9 @@ function configureAllTools(server: McpServer, tokenProvider: () => Promise<Acces
   configureIfDomainEnabled(Domain.REPOSITORIES, () => configureRepoTools(server, tokenProvider, connectionProvider, userAgentProvider, ado_org, pat));
   configureIfDomainEnabled(Domain.WORK_ITEMS, () => configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider));
   configureIfDomainEnabled(Domain.RELEASES, () => configureReleaseTools(server, tokenProvider, connectionProvider));
-  configureIfDomainEnabled(Domain.WIKI, () => configureWikiTools(server, tokenProvider, connectionProvider));
+  // configureIfDomainEnabled(Domain.WIKI, () => configureWikiTools(server, tokenProvider, connectionProvider));
   configureIfDomainEnabled(Domain.TEST_PLANS, () => configureTestPlanTools(server, tokenProvider, connectionProvider));
-  configureIfDomainEnabled(Domain.SEARCH, () => configureSearchTools(server, tokenProvider, connectionProvider, userAgentProvider));
+  // configureIfDomainEnabled(Domain.SEARCH, () => configureSearchTools(server, tokenProvider, connectionProvider, userAgentProvider));
   configureIfDomainEnabled(Domain.ADVANCED_SECURITY, () => configureAdvSecTools(server, tokenProvider, connectionProvider));
 }
 

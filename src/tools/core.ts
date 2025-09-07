@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { AccessToken } from "@azure/identity";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebApi } from "azure-devops-node-api";
 import { z } from "zod";
 import { searchIdentities } from "./auth.js";
 
 import type { ProjectInfo } from "azure-devops-node-api/interfaces/CoreInterfaces.js";
-import { IdentityBase } from "azure-devops-node-api/interfaces/IdentitiesInterfaces.js";
+import { Identity } from "azure-devops-node-api/interfaces/IdentitiesInterfaces.js";
 
 const CORE_TOOLS = {
   list_project_teams: "core_list_project_teams",
@@ -21,7 +20,7 @@ function filterProjectsByName(projects: ProjectInfo[], projectNameFilter: string
   return projects.filter((project) => project.name?.toLowerCase().includes(lowerCaseFilter));
 }
 
-function configureCoreTools(server: McpServer, tokenProvider: () => Promise<AccessToken>, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
+function configureCoreTools(server: McpServer, tokenProvider: () => Promise<string>, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
   server.tool(
     CORE_TOOLS.list_project_teams,
     "Retrieve a list of teams for the specified Azure DevOps project.",
