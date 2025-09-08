@@ -176,6 +176,16 @@ This server uses **Personal Access Token (PAT)** authentication exclusively. You
 8.  Click **Create**.
 9.  **Important:** Copy the generated token immediately. You will not be able to see it again.
 
+### Choosing Your AI Assistant
+
+The Azure DevOps MCP Server can be used within VS Code with different AI assistants.  
+Depending on which AI assistant you plan to use, the configuration method differs:
+
+- **GitHub Copilot Chat**: Configure the server using the `.vscode/mcp.json` file. Once configured, switch to Agent Mode in Copilot Chat and select the tools you want to enable.  
+- **Cline**: Configure the server using the `cline_mcp_settings.json` file. Cline does not use the `.vscode/mcp.json` configuration.
+
+> ⚠️ Note: You only need to configure the server for the AI assistant you are actually using. Both assistants can run in the same VS Code instance, but each reads its own configuration file.
+
 ### Installation and Configuration
 
 The server is configured via a `.vscode/mcp.json` file in your project folder.
@@ -202,7 +212,7 @@ In your project, create a `.vscode/mcp.json` file with the following content:
     "ado": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "azure-cline-mcp-server", "${input:ado_org}", "--pat", "${input:ado_pat}"]
+      "args": ["-y", "azure-cline-mcp-server", "${input:ado_org}", "${input:ado_pat}"]
     }
   }
 }
@@ -239,15 +249,11 @@ Add the following JSON object to the `mcpServers` list in your `cline_mcp_settin
 
 ```json
 "azure-devops": {
-  "command": "npx",
+  "command": "azure-cline-mcp-server",
   "args": [
-    "-y",
-    "azure-cline-mcp-server"
+    "your_azure_devops_organization_name",
+    "your_personal_access_token_here"
   ],
-  "env": {
-    "ADO_ORG_NAME": "your_azure_devops_organization_name",
-    "ADO_PAT": "your_personal_access_token_here"
-  },
   "disabled": false
 }
 ```
@@ -301,7 +307,6 @@ To keep the toolset manageable, you can load specific **domains** (groups of rel
 ```json
 "args": [
   "${input:ado_org}",
-  "--pat",
   "${input:ado_pat}",
   "-d",
   "core",
