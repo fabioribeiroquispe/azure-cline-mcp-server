@@ -35,14 +35,7 @@ function configureBuildTools(server: McpServer, tokenProvider: () => Promise<str
     async ({ project, name, repositoryId, repositoryType, top }) => {
       const connection = await connectionProvider();
       const buildApi = await connection.getBuildApi();
-      const definitions = await buildApi.getDefinitions(
-        project,
-        name,
-        repositoryId,
-        repositoryType,
-        undefined,
-        top
-      );
+      const definitions = await buildApi.getDefinitions(project, name, repositoryId, repositoryType, undefined, top);
       return {
         content: [{ type: "text", text: JSON.stringify(definitions, null, 2) }],
       };

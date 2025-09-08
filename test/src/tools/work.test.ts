@@ -104,19 +104,19 @@ describe("configureWorkTools", () => {
     });
 
     it("should handle unknown error type correctly", async () => {
-        configureWorkTools(server, tokenProvider, connectionProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_list_team_iterations");
-        if (!call) throw new Error("Tool not found");
-        const [, , , handler] = call;
+      configureWorkTools(server, tokenProvider, connectionProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_list_team_iterations");
+      if (!call) throw new Error("Tool not found");
+      const [, , , handler] = call;
 
-        (mockWorkApi.getTeamIterations as jest.Mock).mockRejectedValue("string error");
+      (mockWorkApi.getTeamIterations as jest.Mock).mockRejectedValue("string error");
 
-        const params = { project: "test-project", team: "test-team" };
-        const result = await handler(params);
+      const params = { project: "test-project", team: "test-team" };
+      const result = await handler(params);
 
-        expect(result.isError).toBe(true);
-        expect(result.content[0].text).toContain("Failed to retrieve iterations: string error");
-      });
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain("Failed to retrieve iterations: string error");
+    });
   });
 
   describe("assign_iterations", () => {
@@ -144,7 +144,7 @@ describe("configureWorkTools", () => {
           name: "",
           path: "Fabrikam-Fiber\\Release 1\\Sprint 2",
           attributes: { timeFrame: 0 },
-          url: ""
+          url: "",
         },
         { project: "Fabrikam", team: "Fabrikam Team" }
       );
@@ -152,63 +152,63 @@ describe("configureWorkTools", () => {
     });
 
     it("should handle API errors correctly", async () => {
-        configureWorkTools(server, tokenProvider, connectionProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_assign_iterations");
-        if (!call) throw new Error("Tool not found");
-        const [, , , handler] = call;
+      configureWorkTools(server, tokenProvider, connectionProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_assign_iterations");
+      if (!call) throw new Error("Tool not found");
+      const [, , , handler] = call;
 
-        const testError = new Error("Failed to assign iteration");
-        (mockWorkApi.postTeamIteration as jest.Mock).mockRejectedValue(testError);
+      const testError = new Error("Failed to assign iteration");
+      (mockWorkApi.postTeamIteration as jest.Mock).mockRejectedValue(testError);
 
-        const params = {
-          project: "test-project",
-          team: "test-team",
-          iterationId: "test-id",
-        };
-        const result = await handler(params);
+      const params = {
+        project: "test-project",
+        team: "test-team",
+        iterationId: "test-id",
+      };
+      const result = await handler(params);
 
-        expect(result.isError).toBe(true);
-        expect(result.content[0].text).toContain("Failed to assign iteration: Failed to assign iteration");
-      });
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain("Failed to assign iteration: Failed to assign iteration");
+    });
 
-      it("should handle null API results correctly", async () => {
-        configureWorkTools(server, tokenProvider, connectionProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_assign_iterations");
-        if (!call) throw new Error("Tool not found");
-        const [, , , handler] = call;
+    it("should handle null API results correctly", async () => {
+      configureWorkTools(server, tokenProvider, connectionProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_assign_iterations");
+      if (!call) throw new Error("Tool not found");
+      const [, , , handler] = call;
 
-        (mockWorkApi.postTeamIteration as jest.Mock).mockResolvedValue(null);
+      (mockWorkApi.postTeamIteration as jest.Mock).mockResolvedValue(null);
 
-        const params = {
-          project: "test-project",
-          team: "test-team",
-          iterationId: "test-id",
-        };
-        const result = await handler(params);
+      const params = {
+        project: "test-project",
+        team: "test-team",
+        iterationId: "test-id",
+      };
+      const result = await handler(params);
 
-        expect(mockWorkApi.postTeamIteration).toHaveBeenCalled();
-        expect(result.isError).toBe(true);
-        expect(result.content[0].text).toBe("No iterations were assigned to the team");
-      });
+      expect(mockWorkApi.postTeamIteration).toHaveBeenCalled();
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toBe("No iterations were assigned to the team");
+    });
 
-      it("should handle unknown error type correctly", async () => {
-        configureWorkTools(server, tokenProvider, connectionProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_assign_iterations");
-        if (!call) throw new Error("Tool not found");
-        const [, , , handler] = call;
+    it("should handle unknown error type correctly", async () => {
+      configureWorkTools(server, tokenProvider, connectionProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_assign_iterations");
+      if (!call) throw new Error("Tool not found");
+      const [, , , handler] = call;
 
-        (mockWorkApi.postTeamIteration as jest.Mock).mockRejectedValue("string error");
+      (mockWorkApi.postTeamIteration as jest.Mock).mockRejectedValue("string error");
 
-        const params = {
-            project: "test-project",
-            team: "test-team",
-            iterationId: "test-id",
-          };
-        const result = await handler(params);
+      const params = {
+        project: "test-project",
+        team: "test-team",
+        iterationId: "test-id",
+      };
+      const result = await handler(params);
 
-        expect(result.isError).toBe(true);
-        expect(result.content[0].text).toContain("Failed to assign iteration: string error");
-      });
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain("Failed to assign iteration: string error");
+    });
   });
 
   describe("create_iterations", () => {
@@ -243,96 +243,96 @@ describe("configureWorkTools", () => {
     });
 
     it("should handle API errors correctly", async () => {
-        configureWorkTools(server, tokenProvider, connectionProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_create_iterations");
-        if (!call) throw new Error("Tool not found");
-        const [, , , handler] = call;
+      configureWorkTools(server, tokenProvider, connectionProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_create_iterations");
+      if (!call) throw new Error("Tool not found");
+      const [, , , handler] = call;
 
-        const testError = new Error("Failed to create iteration");
-        (mockWorkItemTrackingApi.createOrUpdateClassificationNode as jest.Mock).mockRejectedValue(testError);
+      const testError = new Error("Failed to create iteration");
+      (mockWorkItemTrackingApi.createOrUpdateClassificationNode as jest.Mock).mockRejectedValue(testError);
 
-        const params = {
-          project: "test-project",
-          iterationName: "Sprint 4",
-        };
-        const result = await handler(params);
+      const params = {
+        project: "test-project",
+        iterationName: "Sprint 4",
+      };
+      const result = await handler(params);
 
-        expect(result.isError).toBe(true);
-        expect(result.content[0].text).toContain("Failed to create iteration: Failed to create iteration");
-      });
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain("Failed to create iteration: Failed to create iteration");
+    });
 
-      it("should handle null API results correctly", async () => {
-        configureWorkTools(server, tokenProvider, connectionProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_create_iterations");
-        if (!call) throw new Error("Tool not found");
-        const [, , , handler] = call;
+    it("should handle null API results correctly", async () => {
+      configureWorkTools(server, tokenProvider, connectionProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_create_iterations");
+      if (!call) throw new Error("Tool not found");
+      const [, , , handler] = call;
 
-        (mockWorkItemTrackingApi.createOrUpdateClassificationNode as jest.Mock).mockResolvedValue(null);
+      (mockWorkItemTrackingApi.createOrUpdateClassificationNode as jest.Mock).mockResolvedValue(null);
 
-        const params = {
-            project: "test-project",
-            iterationName: "Sprint 4",
-          };
-        const result = await handler(params);
+      const params = {
+        project: "test-project",
+        iterationName: "Sprint 4",
+      };
+      const result = await handler(params);
 
-        expect(mockWorkItemTrackingApi.createOrUpdateClassificationNode).toHaveBeenCalled();
-        expect(result.isError).toBe(true);
-        expect(result.content[0].text).toBe("No iterations were created");
-      });
+      expect(mockWorkItemTrackingApi.createOrUpdateClassificationNode).toHaveBeenCalled();
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toBe("No iterations were created");
+    });
 
-      it("should handle unknown error type correctly", async () => {
-        configureWorkTools(server, tokenProvider, connectionProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_create_iterations");
-        if (!call) throw new Error("Tool not found");
-        const [, , , handler] = call;
+    it("should handle unknown error type correctly", async () => {
+      configureWorkTools(server, tokenProvider, connectionProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_create_iterations");
+      if (!call) throw new Error("Tool not found");
+      const [, , , handler] = call;
 
-        (mockWorkItemTrackingApi.createOrUpdateClassificationNode as jest.Mock).mockRejectedValue("string error");
+      (mockWorkItemTrackingApi.createOrUpdateClassificationNode as jest.Mock).mockRejectedValue("string error");
 
-        const params = {
-            project: "test-project",
-            iterationName: "Sprint 4",
-          };
-        const result = await handler(params);
+      const params = {
+        project: "test-project",
+        iterationName: "Sprint 4",
+      };
+      const result = await handler(params);
 
-        expect(result.isError).toBe(true);
-        expect(result.content[0].text).toContain("Failed to create iteration: string error");
-      });
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain("Failed to create iteration: string error");
+    });
 
     it("should handle iterations without start and finish dates", async () => {
-        configureWorkTools(server, tokenProvider, connectionProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_create_iterations");
-        if (!call) throw new Error("Tool not found");
-        const [, , , handler] = call;
+      configureWorkTools(server, tokenProvider, connectionProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "work_create_iterations");
+      if (!call) throw new Error("Tool not found");
+      const [, , , handler] = call;
 
-        const mockIteration: WorkItemClassificationNode = {
-            id: 126391,
-            identifier: "a5c68379-3258-4d62-971c-71c1c459336e",
-            name: "Sprint 3",
-            structureType: TreeNodeStructureType.Iteration,
-            hasChildren: false,
-            path: "\\fabrikam\\fiber\\tfvc\\iteration",
-          };
-        (mockWorkItemTrackingApi.createOrUpdateClassificationNode as jest.Mock).mockResolvedValue(mockIteration);
+      const mockIteration: WorkItemClassificationNode = {
+        id: 126391,
+        identifier: "a5c68379-3258-4d62-971c-71c1c459336e",
+        name: "Sprint 3",
+        structureType: TreeNodeStructureType.Iteration,
+        hasChildren: false,
+        path: "\\fabrikam\\fiber\\tfvc\\iteration",
+      };
+      (mockWorkItemTrackingApi.createOrUpdateClassificationNode as jest.Mock).mockResolvedValue(mockIteration);
 
-        const params = {
-          project: "test-project",
-          iterationName: "Sprint 3",
-        };
+      const params = {
+        project: "test-project",
+        iterationName: "Sprint 3",
+      };
 
-        const result = await handler(params);
+      const result = await handler(params);
 
-        expect(mockWorkItemTrackingApi.createOrUpdateClassificationNode).toHaveBeenCalledWith(
-          {
-            name: "Sprint 3",
-            attributes: {
-              startDate: undefined,
-              finishDate: undefined,
-            },
+      expect(mockWorkItemTrackingApi.createOrUpdateClassificationNode).toHaveBeenCalledWith(
+        {
+          name: "Sprint 3",
+          attributes: {
+            startDate: undefined,
+            finishDate: undefined,
           },
-          "test-project",
-          TreeStructureGroup.Iterations
-        );
-        expect(result.content[0].text).toBe(JSON.stringify([mockIteration], null, 2));
-      });
+        },
+        "test-project",
+        TreeStructureGroup.Iterations
+      );
+      expect(result.content[0].text).toBe(JSON.stringify([mockIteration], null, 2));
+    });
   });
 });

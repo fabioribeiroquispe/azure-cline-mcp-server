@@ -97,14 +97,7 @@ describe("configureBuildTools", () => {
 
       const result = await handler(params);
 
-      expect(mockBuildApi.getDefinitions).toHaveBeenCalledWith(
-        "test-project",
-        "test-build",
-        "repo-123",
-        "TfsGit",
-        undefined,
-        10
-      );
+      expect(mockBuildApi.getDefinitions).toHaveBeenCalledWith("test-project", "test-build", "repo-123", "TfsGit", undefined, 10);
 
       expect(result.content[0].text).toBe(
         JSON.stringify(
@@ -183,9 +176,7 @@ describe("configureBuildTools", () => {
       if (!call) throw new Error("build_get_changes tool not registered");
       const [, , , handler] = call;
 
-      mockBuildApi.getBuildChanges.mockResolvedValue([
-        { id: "abc123", message: "Fixed bug" },
-      ]);
+      mockBuildApi.getBuildChanges.mockResolvedValue([{ id: "abc123", message: "Fixed bug" }]);
 
       const params = {
         project: "test-project",

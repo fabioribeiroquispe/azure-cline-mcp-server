@@ -106,7 +106,7 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
     async ({ id, project, expand }) => {
       const connection = await connectionProvider();
       const witApi = await connection.getWorkItemTrackingApi();
-      const expandEnum = WorkItemExpand[expand.charAt(0).toUpperCase() + expand.slice(1) as keyof typeof WorkItemExpand];
+      const expandEnum = WorkItemExpand[(expand.charAt(0).toUpperCase() + expand.slice(1)) as keyof typeof WorkItemExpand];
       const workItem = await witApi.getWorkItem(id, undefined, undefined, expandEnum, project);
       return {
         content: [{ type: "text", text: JSON.stringify([workItem], null, 2) }],
@@ -138,30 +138,30 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
 
         if (workItems) {
           const userFields = [
-              "System.AssignedTo",
-              "System.CreatedBy",
-              "System.ChangedBy",
-              "System.AuthorizedAs",
-              "Microsoft.VSTS.Common.ActivatedBy",
-              "Microsoft.VSTS.Common.ResolvedBy",
-              "Microsoft.VSTS.Common.ClosedBy",
+            "System.AssignedTo",
+            "System.CreatedBy",
+            "System.ChangedBy",
+            "System.AuthorizedAs",
+            "Microsoft.VSTS.Common.ActivatedBy",
+            "Microsoft.VSTS.Common.ResolvedBy",
+            "Microsoft.VSTS.Common.ClosedBy",
           ];
-          const transformedWorkItems = workItems.map(item => {
-              if (item.fields) {
-                  for (const field of userFields) {
-                      if (item.fields[field] && typeof item.fields[field] === 'object') {
-                          const user = item.fields[field];
-                          const displayName = user.displayName || '';
-                          const uniqueName = user.uniqueName || '';
-                          if (displayName) {
-                            item.fields[field] = `${displayName} <${uniqueName}>`;
-                          } else {
-                            item.fields[field] = `<${uniqueName}>`;
-                          }
-                      }
+          const transformedWorkItems = workItems.map((item) => {
+            if (item.fields) {
+              for (const field of userFields) {
+                if (item.fields[field] && typeof item.fields[field] === "object") {
+                  const user = item.fields[field];
+                  const displayName = user.displayName || "";
+                  const uniqueName = user.uniqueName || "";
+                  if (displayName) {
+                    item.fields[field] = `${displayName} <${uniqueName}>`;
+                  } else {
+                    item.fields[field] = `<${uniqueName}>`;
                   }
+                }
               }
-              return item;
+            }
+            return item;
           });
           return {
             content: [{ type: "text", text: JSON.stringify(transformedWorkItems, null, 2) }],
@@ -185,11 +185,15 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
     "Update a work item by ID with specified fields.",
     {
       id: z.number().describe("The ID of the work item to update."),
-      updates: z.array(z.object({
-        op: z.string(),
-        path: z.string(),
-        value: z.any(),
-      })).describe("An array of patch operations, e.g., [{'op': 'add', 'path': '/fields/System.Title', 'value': 'New Title'}]."),
+      updates: z
+        .array(
+          z.object({
+            op: z.string(),
+            path: z.string(),
+            value: z.any(),
+          })
+        )
+        .describe("An array of patch operations, e.g., [{'op': 'add', 'path': '/fields/System.Title', 'value': 'New Title'}]."),
       project: z.string().optional().describe("The name or ID of the Azure DevOps project."),
     },
     async ({ id, updates, project }) => {
@@ -208,11 +212,15 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
     {
       project: z.string().describe("The name or ID of the Azure DevOps project."),
       workItemType: z.string().describe("The type of the work item to create (e.g., 'Bug', 'Task')."),
-      fields: z.array(z.object({
-        name: z.string(),
-        value: z.any(),
-        format: z.string().optional(),
-      })).describe("An array of field objects for the new work item, e.g., [{'name': 'System.Title', 'value': 'My New Bug'}]."),
+      fields: z
+        .array(
+          z.object({
+            name: z.string(),
+            value: z.any(),
+            format: z.string().optional(),
+          })
+        )
+        .describe("An array of field objects for the new work item, e.g., [{'name': 'System.Title', 'value': 'My New Bug'}]."),
     },
     async ({ project, workItemType, fields }) => {
       try {
@@ -220,17 +228,17 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
         const witApi = await connection.getWorkItemTrackingApi();
         const patchDocument: JsonPatchOperation[] = [];
         for (const field of fields) {
-            patchDocument.push({ op: "add" as any, path: `/fields/${field.name}`, value: field.value });
-            if (field.format && field.value.length > 50) {
-                patchDocument.push({ op: "add" as any, path: `/multilineFieldsFormat/${field.name}`, value: field.format });
-            }
+          patchDocument.push({ op: "add" as any, path: `/fields/${field.name}`, value: field.value });
+          if (field.format && field.value.length > 50) {
+            patchDocument.push({ op: "add" as any, path: `/multilineFieldsFormat/${field.name}`, value: field.format });
+          }
         }
         const workItem = await witApi.createWorkItem(null, patchDocument, project, workItemType);
         if (!workItem) {
-            return {
-                isError: true,
-                content: [{ type: "text", text: "Work item was not created" }],
-            };
+          return {
+            isError: true,
+            content: [{ type: "text", text: "Work item was not created" }],
+          };
         }
         return {
           content: [{ type: "text", text: JSON.stringify(workItem, null, 2) }],
@@ -238,8 +246,8 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
         return {
-            isError: true,
-            content: [{ type: "text", text: `Error creating work item: ${errorMessage}` }],
+          isError: true,
+          content: [{ type: "text", text: `Error creating work item: ${errorMessage}` }],
         };
       }
     }
@@ -299,29 +307,29 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
       format: z.enum(["markdown", "html"]).optional(),
     },
     async ({ project, workItemId, comment, format }) => {
-        const connection = await connectionProvider();
-        const token = await tokenProvider();
-        const commentFormat = format === "markdown" ? 0 : 1;
-        const url = `${connection.serverUrl}/${project}/_apis/wit/workItems/${workItemId}/comments?format=${commentFormat}&api-version=7.2-preview.4`;
+      const connection = await connectionProvider();
+      const token = await tokenProvider();
+      const commentFormat = format === "markdown" ? 0 : 1;
+      const url = `${connection.serverUrl}/${project}/_apis/wit/workItems/${workItemId}/comments?format=${commentFormat}&api-version=7.2-preview.4`;
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${token.token}`,
-                "Content-Type": "application/json",
-                "User-Agent": userAgentProvider(),
-            },
-            body: JSON.stringify({ text: comment }),
-        });
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token.token}`,
+          "Content-Type": "application/json",
+          "User-Agent": userAgentProvider(),
+        },
+        body: JSON.stringify({ text: comment }),
+      });
 
-        if (!response.ok) {
-            throw new Error(`Failed to add a work item comment: ${response.statusText}`);
-        }
+      if (!response.ok) {
+        throw new Error(`Failed to add a work item comment: ${response.statusText}`);
+      }
 
-        const result = await response.text();
-        return {
-            content: [{ type: "text", text: result }],
-        };
+      const result = await response.text();
+      return {
+        content: [{ type: "text", text: result }],
+      };
     }
   );
 
@@ -332,58 +340,60 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
       parentId: z.number().describe("The ID of the parent work item."),
       project: z.string().describe("The name or ID of the Azure DevOps project."),
       workItemType: z.string().describe("The type of child work items to create (e.g., 'Task', 'Bug')."),
-      items: z.array(z.object({
+      items: z.array(
+        z.object({
           title: z.string(),
           description: z.string().optional(),
           areaPath: z.string().optional(),
           iterationPath: z.string().optional(),
           format: z.enum(["Markdown", "Html"]).optional(),
-      })),
+        })
+      ),
     },
     async ({ parentId, project, workItemType, items }) => {
-        if (items.length > 50) {
-            return {
-                isError: true,
-                content: [{ type: "text", text: "A maximum of 50 child work items can be created in a single call." }],
-            };
-        }
-        try {
-            const connection = await connectionProvider();
-            const witApi = await connection.getWorkItemTrackingApi();
+      if (items.length > 50) {
+        return {
+          isError: true,
+          content: [{ type: "text", text: "A maximum of 50 child work items can be created in a single call." }],
+        };
+      }
+      try {
+        const connection = await connectionProvider();
+        const witApi = await connection.getWorkItemTrackingApi();
 
-            const createdWorkItems: WorkItem[] = [];
-            for (const item of items) {
-                const patchDocument: JsonPatchOperation[] = [
-                    { op: "add" as any, path: "/fields/System.Title", value: item.title },
-                    { op: "add" as any, path: "/relations/-", value: { rel: "System.LinkTypes.Hierarchy-Reverse", url: `${connection.serverUrl}/${project}/_apis/wit/workItems/${parentId}` } }
-                ];
-                if (item.description) {
-                    patchDocument.push({ op: "add" as any, path: "/fields/System.Description", value: item.description });
-                    if (item.format === "Markdown") {
-                        patchDocument.push({ op: "add" as any, path: "/multilineFieldsFormat/System.Description", value: "Markdown" });
-                    }
-                }
-                if (item.areaPath?.trim()) {
-                    patchDocument.push({ op: "add" as any, path: "/fields/System.AreaPath", value: item.areaPath.trim() });
-                }
-                if (item.iterationPath?.trim()) {
-                    patchDocument.push({ op: "add" as any, path: "/fields/System.IterationPath", value: item.iterationPath.trim() });
-                }
-
-                const workItem = await witApi.createWorkItem({}, patchDocument, project, workItemType);
-                if(workItem) createdWorkItems.push(workItem);
+        const createdWorkItems: WorkItem[] = [];
+        for (const item of items) {
+          const patchDocument: JsonPatchOperation[] = [
+            { op: "add" as any, path: "/fields/System.Title", value: item.title },
+            { op: "add" as any, path: "/relations/-", value: { rel: "System.LinkTypes.Hierarchy-Reverse", url: `${connection.serverUrl}/${project}/_apis/wit/workItems/${parentId}` } },
+          ];
+          if (item.description) {
+            patchDocument.push({ op: "add" as any, path: "/fields/System.Description", value: item.description });
+            if (item.format === "Markdown") {
+              patchDocument.push({ op: "add" as any, path: "/multilineFieldsFormat/System.Description", value: "Markdown" });
             }
+          }
+          if (item.areaPath?.trim()) {
+            patchDocument.push({ op: "add" as any, path: "/fields/System.AreaPath", value: item.areaPath.trim() });
+          }
+          if (item.iterationPath?.trim()) {
+            patchDocument.push({ op: "add" as any, path: "/fields/System.IterationPath", value: item.iterationPath.trim() });
+          }
 
-            return {
-                content: [{ type: "text", text: JSON.stringify(createdWorkItems, null, 2) }],
-            };
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-            return {
-                isError: true,
-                content: [{ type: "text", text: `Error creating child work items: ${errorMessage}` }],
-            };
+          const workItem = await witApi.createWorkItem({}, patchDocument, project, workItemType);
+          if (workItem) createdWorkItems.push(workItem);
         }
+
+        return {
+          content: [{ type: "text", text: JSON.stringify(createdWorkItems, null, 2) }],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+        return {
+          isError: true,
+          content: [{ type: "text", text: `Error creating child work items: ${errorMessage}` }],
+        };
+      }
     }
   );
 
@@ -485,7 +495,7 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
     async ({ project, query, expand, depth, includeDeleted, useIsoDateFormat }) => {
       const connection = await connectionProvider();
       const witApi = await connection.getWorkItemTrackingApi();
-      const expandEnum = QueryExpand[expand.charAt(0).toUpperCase() + expand.slice(1) as keyof typeof QueryExpand];
+      const expandEnum = QueryExpand[(expand.charAt(0).toUpperCase() + expand.slice(1)) as keyof typeof QueryExpand];
       const result = await witApi.getQuery(project, query, expandEnum, depth, includeDeleted, useIsoDateFormat);
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
@@ -532,62 +542,62 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
         .describe("An array of work item update objects, each with an 'op', 'id', 'path', and 'value'."),
     },
     async ({ project, updates }) => {
-        const connection = await connectionProvider();
-        const token = await tokenProvider();
-        const batchUrl = `${connection.serverUrl}/${project}/_apis/wit/$batch?api-version=${batchApiVersion}`;
+      const connection = await connectionProvider();
+      const token = await tokenProvider();
+      const batchUrl = `${connection.serverUrl}/${project}/_apis/wit/$batch?api-version=${batchApiVersion}`;
 
-        const updatesById: { [id: number]: any[] } = {};
-        for (const update of updates) {
-            if (!updatesById[update.id]) {
-                updatesById[update.id] = [];
+      const updatesById: { [id: number]: any[] } = {};
+      for (const update of updates) {
+        if (!updatesById[update.id]) {
+          updatesById[update.id] = [];
+        }
+        updatesById[update.id].push(update);
+      }
+
+      const requests = Object.entries(updatesById).map(([id, singleItemUpdates]) => {
+        const document: JsonPatchOperation[] = [];
+        const multilineFields: { [key: string]: string } = {};
+
+        for (const update of singleItemUpdates) {
+          document.push({ op: update.op as any, path: update.path, value: update.value });
+          if (update.format === "Markdown" && typeof update.value === "string" && update.value.length > 50) {
+            const fieldName = update.path.split("/").pop();
+            if (fieldName) {
+              multilineFields[fieldName] = "Markdown";
             }
-            updatesById[update.id].push(update);
+          }
         }
 
-        const requests = Object.entries(updatesById).map(([id, singleItemUpdates]) => {
-            const document: JsonPatchOperation[] = [];
-            const multilineFields: {[key: string]: string} = {};
-
-            for (const update of singleItemUpdates) {
-                document.push({ op: update.op as any, path: update.path, value: update.value });
-                if (update.format === "Markdown" && typeof update.value === 'string' && update.value.length > 50) {
-                    const fieldName = update.path.split("/").pop();
-                    if (fieldName) {
-                        multilineFields[fieldName] = "Markdown";
-                    }
-                }
-            }
-
-            for(const [field, format] of Object.entries(multilineFields)) {
-                document.push({ op: "add" as any, path: `/multilineFieldsFormat/${field}`, value: format });
-            }
-
-            return {
-                method: "PATCH",
-                uri: `/_apis/wit/workitems/${id}?api-version=5.0`,
-                headers: { "Content-Type": "application/json-patch+json" },
-                body: document,
-            };
-        });
-
-        const response = await fetch(batchUrl, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token.token}`,
-                "User-Agent": userAgentProvider(),
-            },
-            body: JSON.stringify(requests),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to update work items in batch: ${response.statusText}`);
+        for (const [field, format] of Object.entries(multilineFields)) {
+          document.push({ op: "add" as any, path: `/multilineFieldsFormat/${field}`, value: format });
         }
 
-        const data = await response.json();
         return {
-            content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+          method: "PATCH",
+          uri: `/_apis/wit/workitems/${id}?api-version=5.0`,
+          headers: { "Content-Type": "application/json-patch+json" },
+          body: document,
         };
+      });
+
+      const response = await fetch(batchUrl, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token.token}`,
+          "User-Agent": userAgentProvider(),
+        },
+        body: JSON.stringify(requests),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update work items in batch: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+      };
     }
   );
 
@@ -608,71 +618,71 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
         .describe("An array of link update objects, each with an id, linkToId, type, and optional comment."),
     },
     async ({ project, updates }) => {
-        const connection = await connectionProvider();
-        const token = await tokenProvider();
-        const batchUrl = `${connection.serverUrl}/${project}/_apis/wit/$batch?api-version=${batchApiVersion}`;
+      const connection = await connectionProvider();
+      const token = await tokenProvider();
+      const batchUrl = `${connection.serverUrl}/${project}/_apis/wit/$batch?api-version=${batchApiVersion}`;
 
-        const requests = updates.map((link) => {
-            const document = [
-                {
-                    op: "add" as any,
-                    path: "/relations/-",
-                    value: {
-                        rel: getLinkTypeFromName(link.type),
-                        url: `${connection.serverUrl}/${project}/_apis/wit/workItems/${link.linkToId}`,
-                        attributes: {
-                            comment: link.comment || "",
-                        },
-                    },
-                },
-            ];
-            return {
-                method: "PATCH",
-                uri: `/_apis/wit/workitems/${link.id}`,
-                headers: { "Content-Type": "application/json-patch+json" },
-                body: document,
-            };
-        });
-
-        const response = await fetch(batchUrl, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token.token}`,
-                "User-Agent": userAgentProvider(),
+      const requests = updates.map((link) => {
+        const document = [
+          {
+            op: "add" as any,
+            path: "/relations/-",
+            value: {
+              rel: getLinkTypeFromName(link.type),
+              url: `${connection.serverUrl}/${project}/_apis/wit/workItems/${link.linkToId}`,
+              attributes: {
+                comment: link.comment || "",
+              },
             },
-            body: JSON.stringify(requests),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to update work items in batch: ${response.statusText}`);
-        }
-
-        const data = await response.json();
+          },
+        ];
         return {
-            content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+          method: "PATCH",
+          uri: `/_apis/wit/workitems/${link.id}`,
+          headers: { "Content-Type": "application/json-patch+json" },
+          body: document,
         };
+      });
+
+      const response = await fetch(batchUrl, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token.token}`,
+          "User-Agent": userAgentProvider(),
+        },
+        body: JSON.stringify(requests),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update work items in batch: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+      };
     }
   );
 
   function getLinkTypeFromName(name: string): string {
     const linkTypeMap: { [key: string]: string } = {
-        parent: "System.LinkTypes.Hierarchy-Reverse",
-        child: "System.LinkTypes.Hierarchy-Forward",
-        duplicate: "System.LinkTypes.Duplicate-Forward",
-        "duplicate of": "System.LinkTypes.Duplicate-Reverse",
-        related: "System.LinkTypes.Related",
-        successor: "System.LinkTypes.Dependency-Forward",
-        predecessor: "System.LinkTypes.Dependency-Reverse",
-        "tested by": "Microsoft.VSTS.Common.TestedBy-Forward",
-        tests: "Microsoft.VSTS.Common.TestedBy-Reverse",
-        affects: "Microsoft.VSTS.WorkitemTypes.Bug-Forward",
-        "affected by": "Microsoft.VSTS.WorkitemTypes.Bug-Reverse",
-        artifact: "ArtifactLink",
+      "parent": "System.LinkTypes.Hierarchy-Reverse",
+      "child": "System.LinkTypes.Hierarchy-Forward",
+      "duplicate": "System.LinkTypes.Duplicate-Forward",
+      "duplicate of": "System.LinkTypes.Duplicate-Reverse",
+      "related": "System.LinkTypes.Related",
+      "successor": "System.LinkTypes.Dependency-Forward",
+      "predecessor": "System.LinkTypes.Dependency-Reverse",
+      "tested by": "Microsoft.VSTS.Common.TestedBy-Forward",
+      "tests": "Microsoft.VSTS.Common.TestedBy-Reverse",
+      "affects": "Microsoft.VSTS.WorkitemTypes.Bug-Forward",
+      "affected by": "Microsoft.VSTS.WorkitemTypes.Bug-Reverse",
+      "artifact": "ArtifactLink",
     };
     const fullLinkType = linkTypeMap[name.toLowerCase()];
     if (!fullLinkType) {
-        throw new Error(`Unknown link type: ${name}`);
+      throw new Error(`Unknown link type: ${name}`);
     }
     return fullLinkType;
   }
@@ -681,50 +691,48 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
     WORKITEM_TOOLS.work_item_unlink,
     "Unlink one or many links from a work item.",
     {
-        project: z.string().describe("The name or ID of the Azure DevOps project."),
-        id: z.number().describe("The ID of the work item from which to unlink."),
-        type: z.string().describe("The type of link to remove (e.g., 'related', 'child', 'artifact')."),
-        url: z.string().optional().describe("The URL of the specific link to remove. If not provided, all links of the specified type will be removed."),
+      project: z.string().describe("The name or ID of the Azure DevOps project."),
+      id: z.number().describe("The ID of the work item from which to unlink."),
+      type: z.string().describe("The type of link to remove (e.g., 'related', 'child', 'artifact')."),
+      url: z.string().optional().describe("The URL of the specific link to remove. If not provided, all links of the specified type will be removed."),
     },
     async ({ project, id, type, url }) => {
-        try {
-            const connection = await connectionProvider();
-            const witApi = await connection.getWorkItemTrackingApi();
-            const workItem = await witApi.getWorkItem(id, undefined, undefined, WorkItemExpand.Relations, project);
+      try {
+        const connection = await connectionProvider();
+        const witApi = await connection.getWorkItemTrackingApi();
+        const workItem = await witApi.getWorkItem(id, undefined, undefined, WorkItemExpand.Relations, project);
 
-            if (!workItem?.relations) {
-                return { isError: true, content: [{ type: "text", text: `No matching relations found for link type '${type}'` }] };
-            }
-
-            const fullLinkType = getLinkTypeFromName(type);
-
-            const indicesToRemove: number[] = [];
-            workItem.relations.forEach((relation, index) => {
-                if (relation.rel === fullLinkType && (!url || relation.url === url)) {
-                    indicesToRemove.push(index);
-                }
-            });
-
-            if (indicesToRemove.length === 0) {
-                return { isError: true, content: [{ type: "text", text: `No matching relations found for link type '${type}'` + (url ? ` and URL '${url}'` : "") }] };
-            }
-
-            const patchDocument: JsonPatchOperation[] = indicesToRemove.reverse().map(index => ({
-                op: "remove" as any,
-                path: `/relations/${index}`,
-            }));
-
-            const updatedWorkItem = await witApi.updateWorkItem(null, patchDocument, id, project);
-
-            return {
-                content: [
-                    { type: "text", text: `Removed ${indicesToRemove.length} link(s) of type '${type}':\n${fullLinkType}\n\nUpdated work item result:\n${JSON.stringify(updatedWorkItem, null, 2)}` },
-                ],
-            };
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-            return { isError: true, content: [{ type: "text", text: `Error unlinking work item: ${errorMessage}` }] };
+        if (!workItem?.relations) {
+          return { isError: true, content: [{ type: "text", text: `No matching relations found for link type '${type}'` }] };
         }
+
+        const fullLinkType = getLinkTypeFromName(type);
+
+        const indicesToRemove: number[] = [];
+        workItem.relations.forEach((relation, index) => {
+          if (relation.rel === fullLinkType && (!url || relation.url === url)) {
+            indicesToRemove.push(index);
+          }
+        });
+
+        if (indicesToRemove.length === 0) {
+          return { isError: true, content: [{ type: "text", text: `No matching relations found for link type '${type}'` + (url ? ` and URL '${url}'` : "") }] };
+        }
+
+        const patchDocument: JsonPatchOperation[] = indicesToRemove.reverse().map((index) => ({
+          op: "remove" as any,
+          path: `/relations/${index}`,
+        }));
+
+        const updatedWorkItem = await witApi.updateWorkItem(null, patchDocument, id, project);
+
+        return {
+          content: [{ type: "text", text: `Removed ${indicesToRemove.length} link(s) of type '${type}':\n${fullLinkType}\n\nUpdated work item result:\n${JSON.stringify(updatedWorkItem, null, 2)}` }],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+        return { isError: true, content: [{ type: "text", text: `Error unlinking work item: ${errorMessage}` }] };
+      }
     }
   );
 
@@ -732,64 +740,72 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
     WORKITEM_TOOLS.add_artifact_link,
     "Link to artifacts like branch, pull request, commit, and build.",
     {
-        project: z.string().describe("The name or ID of the Azure DevOps project."),
-        workItemId: z.number().describe("The ID of the work item to which the artifact link will be added."),
-        linkType: z.string().describe("The type of artifact link (e.g., 'Branch', 'Commit')."),
-        comment: z.string().optional().describe("A comment for the artifact link."),
-        artifactUri: z.string().optional().describe("The full URI of the artifact to link."),
-        projectId: z.string().optional().describe("The ID of the project for the artifact."),
-        repositoryId: z.string().optional().describe("The ID of the repository."),
-        branchName: z.string().optional().describe("The name of the branch."),
-        commitId: z.string().optional().describe("The ID of the commit."),
-        pullRequestId: z.string().optional().describe("The ID of the pull request."),
-        buildId: z.string().optional().describe("The ID of the build."),
+      project: z.string().describe("The name or ID of the Azure DevOps project."),
+      workItemId: z.number().describe("The ID of the work item to which the artifact link will be added."),
+      linkType: z.string().describe("The type of artifact link (e.g., 'Branch', 'Commit')."),
+      comment: z.string().optional().describe("A comment for the artifact link."),
+      artifactUri: z.string().optional().describe("The full URI of the artifact to link."),
+      projectId: z.string().optional().describe("The ID of the project for the artifact."),
+      repositoryId: z.string().optional().describe("The ID of the repository."),
+      branchName: z.string().optional().describe("The name of the branch."),
+      commitId: z.string().optional().describe("The ID of the commit."),
+      pullRequestId: z.string().optional().describe("The ID of the pull request."),
+      buildId: z.string().optional().describe("The ID of the build."),
     },
     async (params) => {
-        try {
-            let uri = params.artifactUri;
-            if (!uri) {
-                switch (params.linkType) {
-                    case "Branch":
-                        if (!params.projectId || !params.repositoryId || !params.branchName) return { isError: true, content: [{ type: "text", text: "For 'Branch' links, 'projectId', 'repositoryId', and 'branchName' are required." }] };
-                        uri = `vstfs:///Git/Ref/${encodeURIComponent(params.projectId)}%2F${encodeURIComponent(params.repositoryId)}%2FGB${encodeURIComponent(params.branchName)}`;
-                        break;
-                    case "Fixed in Commit":
-                    case "Commit":
-                        if (!params.projectId || !params.repositoryId || !params.commitId) return { isError: true, content: [{ type: "text", text: "For 'Fixed in Commit' links, 'projectId', 'repositoryId', and 'commitId' are required." }] };
-                        uri = `vstfs:///Git/Commit/${encodeURIComponent(params.projectId)}%2F${encodeURIComponent(params.repositoryId)}%2F${encodeURIComponent(params.commitId)}`;
-                        break;
-                    case "Pull Request":
-                        if (!params.projectId || !params.repositoryId || !params.pullRequestId) return { isError: true, content: [{ type: "text", text: "For 'Pull Request' links, 'projectId', 'repositoryId', and 'pullRequestId' are required." }] };
-                        uri = `vstfs:///Git/PullRequestId/${encodeURIComponent(params.projectId)}%2F${encodeURIComponent(params.repositoryId)}%2F${encodeURIComponent(params.pullRequestId)}`;
-                        break;
-                    case "Build":
-                    case "Found in build":
-                    case "Integrated in build":
-                        if (!params.buildId) return { isError: true, content: [{ type: "text", text: "For 'Build' links, 'buildId' is required." }] };
-                        uri = `vstfs:///Build/Build/${params.buildId}`;
-                        break;
-                    default:
-                        return { isError: true, content: [{ type: "text", text: `URI building from components is not supported for link type '${params.linkType}'. Please provide the full 'artifactUri' instead.` }] };
-                }
-            }
-
-            const patchDocument: JsonPatchOperation[] = [
-                { op: "add" as any, path: "/relations/-", value: { rel: "ArtifactLink", url: uri, attributes: { name: params.linkType, comment: params.comment } } },
-            ];
-
-            const connection = await connectionProvider();
-            const witApi = await connection.getWorkItemTrackingApi();
-            const updatedWorkItem = await witApi.updateWorkItem({}, patchDocument, params.workItemId, params.project);
-
-            if (!updatedWorkItem) {
-                return { isError: true, content: [{ type: "text", text: "Work item update failed" }] };
-            }
-
-            return { content: [{ type: "text", text: JSON.stringify({ workItemId: params.workItemId, artifactUri: uri, linkType: params.linkType, comment: params.comment || null, success: true }, null, 2) }] };
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-            return { isError: true, content: [{ type: "text", text: `Error adding artifact link to work item: ${errorMessage}` }] };
+      try {
+        let uri = params.artifactUri;
+        if (!uri) {
+          switch (params.linkType) {
+            case "Branch":
+              if (!params.projectId || !params.repositoryId || !params.branchName)
+                return { isError: true, content: [{ type: "text", text: "For 'Branch' links, 'projectId', 'repositoryId', and 'branchName' are required." }] };
+              uri = `vstfs:///Git/Ref/${encodeURIComponent(params.projectId)}%2F${encodeURIComponent(params.repositoryId)}%2FGB${encodeURIComponent(params.branchName)}`;
+              break;
+            case "Fixed in Commit":
+            case "Commit":
+              if (!params.projectId || !params.repositoryId || !params.commitId)
+                return { isError: true, content: [{ type: "text", text: "For 'Fixed in Commit' links, 'projectId', 'repositoryId', and 'commitId' are required." }] };
+              uri = `vstfs:///Git/Commit/${encodeURIComponent(params.projectId)}%2F${encodeURIComponent(params.repositoryId)}%2F${encodeURIComponent(params.commitId)}`;
+              break;
+            case "Pull Request":
+              if (!params.projectId || !params.repositoryId || !params.pullRequestId)
+                return { isError: true, content: [{ type: "text", text: "For 'Pull Request' links, 'projectId', 'repositoryId', and 'pullRequestId' are required." }] };
+              uri = `vstfs:///Git/PullRequestId/${encodeURIComponent(params.projectId)}%2F${encodeURIComponent(params.repositoryId)}%2F${encodeURIComponent(params.pullRequestId)}`;
+              break;
+            case "Build":
+            case "Found in build":
+            case "Integrated in build":
+              if (!params.buildId) return { isError: true, content: [{ type: "text", text: "For 'Build' links, 'buildId' is required." }] };
+              uri = `vstfs:///Build/Build/${params.buildId}`;
+              break;
+            default:
+              return {
+                isError: true,
+                content: [{ type: "text", text: `URI building from components is not supported for link type '${params.linkType}'. Please provide the full 'artifactUri' instead.` }],
+              };
+          }
         }
+
+        const patchDocument: JsonPatchOperation[] = [
+          { op: "add" as any, path: "/relations/-", value: { rel: "ArtifactLink", url: uri, attributes: { name: params.linkType, comment: params.comment } } },
+        ];
+
+        const connection = await connectionProvider();
+        const witApi = await connection.getWorkItemTrackingApi();
+        const updatedWorkItem = await witApi.updateWorkItem({}, patchDocument, params.workItemId, params.project);
+
+        if (!updatedWorkItem) {
+          return { isError: true, content: [{ type: "text", text: "Work item update failed" }] };
+        }
+
+        return {
+          content: [{ type: "text", text: JSON.stringify({ workItemId: params.workItemId, artifactUri: uri, linkType: params.linkType, comment: params.comment || null, success: true }, null, 2) }],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+        return { isError: true, content: [{ type: "text", text: `Error adding artifact link to work item: ${errorMessage}` }] };
+      }
     }
   );
 }

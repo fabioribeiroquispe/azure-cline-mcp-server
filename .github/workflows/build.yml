@@ -75,8 +75,8 @@ jobs:
       - name: Validate server startup via local binary
         shell: pwsh
         run: |
-          $result = & mcp-server-azuredevops 2>&1 | Out-String
-          if ($result -notmatch "Usage: mcp-server-azuredevops <organization>") {
+          $result = & npm exec azure-cline-mcp-server -- 2>&1 | Out-String
+          if ($result -notmatch "Usage: azure-cline-mcp-server <organization>") {
             Write-Host "Expected usage message not found in output:"
             Write-Host $result
             exit 1

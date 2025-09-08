@@ -27,18 +27,18 @@ describe("configureWorkItemTools", () => {
     tokenProvider = jest.fn<() => Promise<AccessToken>>().mockResolvedValue({ token: "fake-token", expiresOnTimestamp: Date.now() + 3600 * 1000 });
     userAgentProvider = () => "Jest";
     mockWorkItemTrackingApi = {
-        getWorkItem: jest.fn(),
-        updateWorkItem: jest.fn(),
-        createWorkItem: jest.fn(),
-        getQuery: jest.fn(),
-        getWorkItemType: jest.fn(),
-        getComments: jest.fn(),
-        getBacklogs: jest.fn(),
-        getBacklogLevelWorkItems: jest.fn(),
-        getPredefinedQueryResults: jest.fn(),
-        getWorkItemsBatch: jest.fn(),
-        getIterationWorkItems: jest.fn(),
-        queryById: jest.fn(),
+      getWorkItem: jest.fn(),
+      updateWorkItem: jest.fn(),
+      createWorkItem: jest.fn(),
+      getQuery: jest.fn(),
+      getWorkItemType: jest.fn(),
+      getComments: jest.fn(),
+      getBacklogs: jest.fn(),
+      getBacklogLevelWorkItems: jest.fn(),
+      getPredefinedQueryResults: jest.fn(),
+      getWorkItemsBatch: jest.fn(),
+      getIterationWorkItems: jest.fn(),
+      queryById: jest.fn(),
     } as any;
 
     const getWorkItemTrackingApi = jest.fn<() => Promise<IWorkItemTrackingApi>>().mockResolvedValue(mockWorkItemTrackingApi);
@@ -148,7 +148,12 @@ describe("configureWorkItemTools", () => {
       if (!call) throw new Error("Tool not found");
       const handler = call[3] as (params: any) => Promise<any>;
 
-      const mockQueryWithDate: QueryHierarchyItem = { ..._mockQuery, createdDate: new Date(_mockQuery.createdDate), lastModifiedDate: new Date(_mockQuery.lastModifiedDate), lastExecutedDate: new Date(_mockQuery.lastExecutedDate) };
+      const mockQueryWithDate: QueryHierarchyItem = {
+        ..._mockQuery,
+        createdDate: new Date(_mockQuery.createdDate),
+        lastModifiedDate: new Date(_mockQuery.lastModifiedDate),
+        lastExecutedDate: new Date(_mockQuery.lastExecutedDate),
+      };
       mockWorkItemTrackingApi.getQuery.mockResolvedValue(mockQueryWithDate);
       const params = {
         project: "Contoso",
@@ -166,15 +171,15 @@ describe("configureWorkItemTools", () => {
 
   describe("getLinkTypeFromName function coverage", () => {
     it("should throw error for unknown link type", async () => {
-        configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_work_items_link");
-        if (!call) throw new Error("Tool not found");
-        const handler = call[3] as (params: any) => Promise<any>;
-        const params = {
-            project: "TestProject",
-            updates: [{ id: 1, linkToId: 2, type: "unknown_type" }],
-        };
-        await expect(handler(params)).rejects.toThrow("Unknown link type: unknown_type");
+      configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_work_items_link");
+      if (!call) throw new Error("Tool not found");
+      const handler = call[3] as (params: any) => Promise<any>;
+      const params = {
+        project: "TestProject",
+        updates: [{ id: 1, linkToId: 2, type: "unknown_type" }],
+      };
+      await expect(handler(params)).rejects.toThrow("Unknown link type: unknown_type");
     });
   });
 
@@ -197,30 +202,36 @@ describe("configureWorkItemTools", () => {
         expect.stringContaining("Contoso/_apis/wit/$batch?api-version="),
         expect.objectContaining({
           method: "PATCH",
-          body: expect.stringContaining(`"uri":"/_apis/wit/workitems/1?api-version=5.0"`)
+          body: expect.stringContaining(`"uri":"/_apis/wit/workitems/1?api-version=5.0"`),
         })
       );
     });
 
     it("should handle Markdown format for large text fields", async () => {
-        configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_update_work_items_batch");
-        if (!call) throw new Error("Tool not found");
-        const handler = call[3] as (params: any) => Promise<any>;
-        mockFetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({ value: [] }) } as Response);
-        const params = {
-            project: "Contoso",
-            updates: [
-                { op: "Add", id: 1, path: "/fields/System.Description", value: "This is a very long description that is definitely more than 50 characters long and should trigger Markdown formatting", format: "Markdown" },
-                { op: "Add", id: 1, path: "/fields/System.Title", value: "Simple Title" },
-            ],
-        };
-        await handler(params);
-        const fetchCall = (fetch as jest.Mock).mock.calls[0] as [RequestInfo | URL, RequestInit | undefined];
-        const body = JSON.parse(fetchCall[1]?.body as string);
-        const patchDoc = body[0].body;
-        expect(patchDoc).toContainEqual({ op: "add", path: "/multilineFieldsFormat/System.Description", value: "Markdown" });
-      });
+      configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_update_work_items_batch");
+      if (!call) throw new Error("Tool not found");
+      const handler = call[3] as (params: any) => Promise<any>;
+      mockFetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({ value: [] }) } as Response);
+      const params = {
+        project: "Contoso",
+        updates: [
+          {
+            op: "Add",
+            id: 1,
+            path: "/fields/System.Description",
+            value: "This is a very long description that is definitely more than 50 characters long and should trigger Markdown formatting",
+            format: "Markdown",
+          },
+          { op: "Add", id: 1, path: "/fields/System.Title", value: "Simple Title" },
+        ],
+      };
+      await handler(params);
+      const fetchCall = (fetch as jest.Mock).mock.calls[0] as [RequestInfo | URL, RequestInit | undefined];
+      const body = JSON.parse(fetchCall[1]?.body as string);
+      const patchDoc = body[0].body;
+      expect(patchDoc).toContainEqual({ op: "add", path: "/multilineFieldsFormat/System.Description", value: "Markdown" });
+    });
   });
 
   describe("work_items_link tool", () => {
@@ -239,7 +250,7 @@ describe("configureWorkItemTools", () => {
         expect.stringContaining("/TestProject/_apis/wit/$batch?api-version="),
         expect.objectContaining({
           method: "PATCH",
-          body: expect.stringContaining(`"rel":"System.LinkTypes.Related"`)
+          body: expect.stringContaining(`"rel":"System.LinkTypes.Related"`),
         })
       );
     });
@@ -265,55 +276,66 @@ describe("configureWorkItemTools", () => {
     });
 
     it("should unlink all links of a specific type when no URL is provided", async () => {
-        configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_work_item_unlink");
-        if (!call) throw new Error("Tool not found");
-        const handler = call[3] as (params: any) => Promise<any>;
-        mockWorkItemTrackingApi.getWorkItem.mockResolvedValue({ relations: [{ rel: "System.LinkTypes.Related" }, { rel: "System.LinkTypes.Related" }] } as any);
-        mockWorkItemTrackingApi.updateWorkItem.mockResolvedValue(_mockWorkItem);
-        const params = {
-            project: "TestProject",
-            id: 1,
-            type: "related",
-        };
-        await handler(params);
-        expect(mockWorkItemTrackingApi.updateWorkItem).toHaveBeenCalledWith(null, [{ op: "remove", path: "/relations/1" }, { op: "remove", path: "/relations/0" }], 1, "TestProject");
+      configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_work_item_unlink");
+      if (!call) throw new Error("Tool not found");
+      const handler = call[3] as (params: any) => Promise<any>;
+      mockWorkItemTrackingApi.getWorkItem.mockResolvedValue({ relations: [{ rel: "System.LinkTypes.Related" }, { rel: "System.LinkTypes.Related" }] } as any);
+      mockWorkItemTrackingApi.updateWorkItem.mockResolvedValue(_mockWorkItem);
+      const params = {
+        project: "TestProject",
+        id: 1,
+        type: "related",
+      };
+      await handler(params);
+      expect(mockWorkItemTrackingApi.updateWorkItem).toHaveBeenCalledWith(
+        null,
+        [
+          { op: "remove", path: "/relations/1" },
+          { op: "remove", path: "/relations/0" },
+        ],
+        1,
+        "TestProject"
+      );
     });
 
     it("should handle artifact link removal", async () => {
-        configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_work_item_unlink");
-        if (!call) throw new Error("Tool not found");
-        const handler = call[3] as (params: any) => Promise<any>;
-        mockWorkItemTrackingApi.getWorkItem.mockResolvedValue({ relations: [{ rel: "ArtifactLink", url: "vstfs:///..." }] } as any);
-        mockWorkItemTrackingApi.updateWorkItem.mockResolvedValue(_mockWorkItem);
-        const params = {
-            project: "TestProject",
-            id: 1,
-            type: "artifact",
-            url: "vstfs:///...",
-        };
-        const result = await handler(params);
-        expect(mockWorkItemTrackingApi.updateWorkItem).toHaveBeenCalledWith(null, [{ op: "remove", path: "/relations/0" }], 1, "TestProject");
+      configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_work_item_unlink");
+      if (!call) throw new Error("Tool not found");
+      const handler = call[3] as (params: any) => Promise<any>;
+      mockWorkItemTrackingApi.getWorkItem.mockResolvedValue({ relations: [{ rel: "ArtifactLink", url: "vstfs:///..." }] } as any);
+      mockWorkItemTrackingApi.updateWorkItem.mockResolvedValue(_mockWorkItem);
+      const params = {
+        project: "TestProject",
+        id: 1,
+        type: "artifact",
+        url: "vstfs:///...",
+      };
+      const result = await handler(params);
+      expect(mockWorkItemTrackingApi.updateWorkItem).toHaveBeenCalledWith(null, [{ op: "remove", path: "/relations/0" }], 1, "TestProject");
     });
 
     it("should handle specific URL matching correctly", async () => {
-        configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_work_item_unlink");
-        if (!call) throw new Error("Tool not found");
-        const handler = call[3] as (params: any) => Promise<any>;
-        mockWorkItemTrackingApi.getWorkItem.mockResolvedValue({
-            relations: [{ rel: "System.LinkTypes.Related", url: "http://test.com/2" }, { rel: "System.LinkTypes.Related", url: "http://test.com/3" }],
-        } as any);
-        mockWorkItemTrackingApi.updateWorkItem.mockResolvedValue(_mockWorkItem);
-        const params = {
-            project: "TestProject",
-            id: 1,
-            type: "related",
-            url: "http://test.com/2",
-        };
-        await handler(params);
-        expect(mockWorkItemTrackingApi.updateWorkItem).toHaveBeenCalledWith(null, [{ op: "remove", path: "/relations/0" }], 1, "TestProject");
+      configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_work_item_unlink");
+      if (!call) throw new Error("Tool not found");
+      const handler = call[3] as (params: any) => Promise<any>;
+      mockWorkItemTrackingApi.getWorkItem.mockResolvedValue({
+        relations: [
+          { rel: "System.LinkTypes.Related", url: "http://test.com/2" },
+          { rel: "System.LinkTypes.Related", url: "http://test.com/3" },
+        ],
+      } as any);
+      mockWorkItemTrackingApi.updateWorkItem.mockResolvedValue(_mockWorkItem);
+      const params = {
+        project: "TestProject",
+        id: 1,
+        type: "related",
+        url: "http://test.com/2",
+      };
+      await handler(params);
+      expect(mockWorkItemTrackingApi.updateWorkItem).toHaveBeenCalledWith(null, [{ op: "remove", path: "/relations/0" }], 1, "TestProject");
     });
   });
 
@@ -343,72 +365,72 @@ describe("configureWorkItemTools", () => {
     });
 
     it("should handle add_child_work_item with empty optional parameters", async () => {
-        configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_add_child_work_items");
-        if (!call) throw new Error("Tool not found");
-        const handler = call[3] as (params: any) => Promise<any>;
-        mockWorkItemTrackingApi.createWorkItem.mockResolvedValue(_mockWorkItem);
-        const params = {
-            parentId: 1,
-            project: "TestProject",
-            workItemType: "Task",
-            items: [{ title: "Child Task", areaPath: " ", iterationPath: "" }],
-        };
-        await handler(params);
-        const patchDoc = mockWorkItemTrackingApi.createWorkItem.mock.calls[0][1];
-        expect(patchDoc).not.toContainEqual(expect.objectContaining({ path: "/fields/System.AreaPath" }));
-        expect(patchDoc).not.toContainEqual(expect.objectContaining({ path: "/fields/System.IterationPath" }));
+      configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_add_child_work_items");
+      if (!call) throw new Error("Tool not found");
+      const handler = call[3] as (params: any) => Promise<any>;
+      mockWorkItemTrackingApi.createWorkItem.mockResolvedValue(_mockWorkItem);
+      const params = {
+        parentId: 1,
+        project: "TestProject",
+        workItemType: "Task",
+        items: [{ title: "Child Task", areaPath: " ", iterationPath: "" }],
+      };
+      await handler(params);
+      const patchDoc = mockWorkItemTrackingApi.createWorkItem.mock.calls[0][1];
+      expect(patchDoc).not.toContainEqual(expect.objectContaining({ path: "/fields/System.AreaPath" }));
+      expect(patchDoc).not.toContainEqual(expect.objectContaining({ path: "/fields/System.IterationPath" }));
     });
 
     it("should handle Markdown format correctly", async () => {
-        configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_add_child_work_items");
-        if (!call) throw new Error("Tool not found");
-        const handler = call[3] as (params: any) => Promise<any>;
-        mockWorkItemTrackingApi.createWorkItem.mockResolvedValue(_mockWorkItem);
-        const params = {
-            parentId: 1,
-            project: "TestProject",
-            workItemType: "Task",
-            items: [{ title: "Child Task", description: "a".repeat(51), format: "Markdown" as const }],
-        };
-        await handler(params);
-        const patchDoc = mockWorkItemTrackingApi.createWorkItem.mock.calls[0][1];
-        expect(patchDoc).toContainEqual({ op: "add", path: "/multilineFieldsFormat/System.Description", value: "Markdown" });
+      configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_add_child_work_items");
+      if (!call) throw new Error("Tool not found");
+      const handler = call[3] as (params: any) => Promise<any>;
+      mockWorkItemTrackingApi.createWorkItem.mockResolvedValue(_mockWorkItem);
+      const params = {
+        parentId: 1,
+        project: "TestProject",
+        workItemType: "Task",
+        items: [{ title: "Child Task", description: "a".repeat(51), format: "Markdown" as const }],
+      };
+      await handler(params);
+      const patchDoc = mockWorkItemTrackingApi.createWorkItem.mock.calls[0][1];
+      expect(patchDoc).toContainEqual({ op: "add", path: "/multilineFieldsFormat/System.Description", value: "Markdown" });
     });
 
     it("should handle fetch failure response", async () => {
-        configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_add_child_work_items");
-        if (!call) throw new Error("Tool not found");
-        const handler = call[3] as (params: any) => Promise<any>;
-        mockWorkItemTrackingApi.createWorkItem.mockRejectedValue(new Error("Internal Server Error"));
-        const params = {
-            parentId: 1,
-            project: "TestProject",
-            workItemType: "Task",
-            items: [{ title: "Child Task" }],
-        };
-        const result = await handler(params);
-        expect(result.isError).toBe(true);
-        expect(result.content[0].text).toBe("Error creating child work items: Internal Server Error");
+      configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_add_child_work_items");
+      if (!call) throw new Error("Tool not found");
+      const handler = call[3] as (params: any) => Promise<any>;
+      mockWorkItemTrackingApi.createWorkItem.mockRejectedValue(new Error("Internal Server Error"));
+      const params = {
+        parentId: 1,
+        project: "TestProject",
+        workItemType: "Task",
+        items: [{ title: "Child Task" }],
+      };
+      const result = await handler(params);
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toBe("Error creating child work items: Internal Server Error");
     });
 
     it("should handle unknown error types in add_child_work_items", async () => {
-        configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
-        const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_add_child_work_items");
-        if (!call) throw new Error("Tool not found");
-        const handler = call[3] as (params: any) => Promise<any>;
-        mockWorkItemTrackingApi.createWorkItem.mockRejectedValue("unknown error");
-        const params = {
-            parentId: 1,
-            project: "TestProject",
-            workItemType: "Task",
-            items: [{ title: "Child Task" }],
-        };
-        const result = await handler(params);
-        expect(result.isError).toBe(true);
-        expect(result.content[0].text).toBe("Error creating child work items: Unknown error occurred");
+      configureWorkItemTools(server, tokenProvider, connectionProvider, userAgentProvider);
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "wit_add_child_work_items");
+      if (!call) throw new Error("Tool not found");
+      const handler = call[3] as (params: any) => Promise<any>;
+      mockWorkItemTrackingApi.createWorkItem.mockRejectedValue("unknown error");
+      const params = {
+        parentId: 1,
+        project: "TestProject",
+        workItemType: "Task",
+        items: [{ title: "Child Task" }],
+      };
+      const result = await handler(params);
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toBe("Error creating child work items: Unknown error occurred");
     });
   });
 });
