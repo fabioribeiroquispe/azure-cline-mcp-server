@@ -108,10 +108,12 @@ export function extractParameterNames(fileContent: string): string[] {
   const paramNames: string[] = [];
 
   // Pattern to match parameter definitions like: paramName: z.string()
-  const paramPattern = /^\s*\w+:\s*"([^"]+)"/gm;
+  // This looks for a word followed by optional whitespace, a colon, optional whitespace, and "z."
+  const paramPattern = /(\w+)\s*:\s*z\./g;
 
   let match;
   while ((match = paramPattern.exec(fileContent)) !== null) {
+    // match[1] captures the parameter name (the first word)
     paramNames.push(match[1]);
   }
 
