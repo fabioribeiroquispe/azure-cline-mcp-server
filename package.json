@@ -1,6 +1,6 @@
 {
   "name": "azure-cline-mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Custom MCP server for interacting with Azure DevOps",
   "license": "MIT",
   "author": "Fábio Ribeiro dos Santos Quispe",
