@@ -22,10 +22,26 @@ function configureWikiTools(server: McpServer, tokenProvider: () => Promise<stri
       wikiIdentifier: z.string().describe("Wiki ID or wiki name"),
     },
     async ({ project, wikiIdentifier }) => {
-      return {
-        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
-        isError: true,
-      };
+      try {
+        const connection = await connectionProvider();
+        const wikiApi = await connection.getWikiApi();
+        const wiki = await wikiApi.getWiki(wikiIdentifier, project);
+        if (!wiki) {
+          return {
+            isError: true,
+            content: [{ type: "text", text: "No wiki found" }],
+          };
+        }
+        return {
+          content: [{ type: "text", text: JSON.stringify(wiki, null, 2) }],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+        return {
+          isError: true,
+          content: [{ type: "text", text: `Error fetching wiki: ${errorMessage}` }],
+        };
+      }
     }
   );
 
@@ -36,12 +52,26 @@ function configureWikiTools(server: McpServer, tokenProvider: () => Promise<stri
       project: z.string().optional().describe("Project ID or project name"),
     },
     async ({ project }) => {
-      const connection = await connectionProvider();
-      const wikiApi = await connection.getWikiApi();
-      const wikis = await wikiApi.getAllWikis(project);
-      return {
-        content: [{ type: "text", text: JSON.stringify(wikis, null, 2) }],
-      };
+      try {
+        const connection = await connectionProvider();
+        const wikiApi = await connection.getWikiApi();
+        const wikis = await wikiApi.getAllWikis(project);
+        if (!wikis) {
+          return {
+            isError: true,
+            content: [{ type: "text", text: "No wikis found" }],
+          };
+        }
+        return {
+          content: [{ type: "text", text: JSON.stringify(wikis, null, 2) }],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+        return {
+          isError: true,
+          content: [{ type: "text", text: `Error fetching wikis: ${errorMessage}` }],
+        };
+      }
     }
   );
 
@@ -51,15 +81,39 @@ function configureWikiTools(server: McpServer, tokenProvider: () => Promise<stri
     {
       project: z.string().describe("The name or ID of the Azure DevOps project."),
       wikiIdentifier: z.string().describe("The ID or name of the wiki."),
-      path: z.string().optional().describe("The path to the folder to retrieve pages from. Optional, defaults to the root."),
-      recursionLevel: z.enum(["none", "full"]).optional().default("none").describe("The recursion level for retrieving pages. Optional, defaults to 'none'."),
-      includeContent: z.boolean().optional().default(false).describe("Whether to include the content of the pages. Optional, defaults to false."),
+      top: z.number().optional().default(20),
+      continuationToken: z.string().optional(),
+      pageViewsForDays: z.number().optional(),
     },
-    async ({ project, wikiIdentifier, path, recursionLevel, includeContent }) => {
-      return {
-        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
-        isError: true,
-      };
+    async ({ project, wikiIdentifier, top = 20, continuationToken, pageViewsForDays }) => {
+      try {
+        const connection = await connectionProvider();
+        const wikiApi = await connection.getWikiApi();
+        const pages = await wikiApi.getPagesBatch(
+          {
+            top,
+            continuationToken,
+            pageViewsForDays,
+          },
+          project,
+          wikiIdentifier
+        );
+        if (!pages) {
+          return {
+            isError: true,
+            content: [{ type: "text", text: "No wiki pages found" }],
+          };
+        }
+        return {
+          content: [{ type: "text", text: JSON.stringify(pages, null, 2) }],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+        return {
+          isError: true,
+          content: [{ type: "text", text: `Error fetching wiki pages: ${errorMessage}` }],
+        };
+      }
     }
   );
 

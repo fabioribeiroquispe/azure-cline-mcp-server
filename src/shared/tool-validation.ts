@@ -107,13 +107,17 @@ export function extractToolNames(fileContent: string): string[] {
 export function extractParameterNames(fileContent: string): string[] {
   const paramNames: string[] = [];
 
-  // Pattern to match parameter definitions like: paramName: z.string()
-  // This looks for a word followed by optional whitespace, a colon, optional whitespace, and "z."
-  const paramPattern = /(\w+)\s*:\s*z\./g;
+  // This pattern finds words at the beginning of a line followed by ': z.'
+  // which is specific to the Zod schema definitions for tool parameters.
+  // ^\s*     - Start of the line with optional whitespace
+  // (\w+)    - Captures the parameter name
+  // :\s*z\.  - Matches the colon and 'z.' that follows
+  // gm flags - Global and multiline search
+  const paramPattern = /^\s*(\w+):\s*z\./gm;
 
   let match;
   while ((match = paramPattern.exec(fileContent)) !== null) {
-    // match[1] captures the parameter name (the first word)
+    // match[1] contains the captured parameter name
     paramNames.push(match[1]);
   }
 
