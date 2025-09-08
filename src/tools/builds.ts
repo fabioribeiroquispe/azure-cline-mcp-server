@@ -3,7 +3,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebApi } from "azure-devops-node-api";
-import { BuildResult, BuildStatus } from "azure-devops-node-api/interfaces/BuildInterfaces.js";
+import { BuildResult, BuildStatus, DefinitionQueryOrder } from "azure-devops-node-api/interfaces/BuildInterfaces.js";
 import { z } from "zod";
 import { getEnumKeys } from "../utils.js";
 
@@ -16,6 +16,9 @@ const BUILD_TOOLS = {
   get_changes: "build_get_changes",
   get_status: "build_get_status",
   update_build_stage: "build_update_build_stage",
+  pipelines_get_run: "pipelines_get_run",
+  pipelines_list_runs: "pipelines_list_runs",
+  pipelines_run_pipeline: "pipelines_run_pipeline",
 };
 
 function configureBuildTools(server: McpServer, tokenProvider: () => Promise<string>, connectionProvider: () => Promise<WebApi>, userAgentProvider: () => string) {
@@ -25,11 +28,14 @@ function configureBuildTools(server: McpServer, tokenProvider: () => Promise<str
     {
       project: z.string().describe("The name or ID of the Azure DevOps project."),
       name: z.string().optional().describe("A filter to return only build definitions with this name."),
+      repositoryId: z.string().optional().describe("The repository ID."),
+      repositoryType: z.string().optional().describe("The repository type."),
+      top: z.number().optional().describe("The maximum number of definitions to return."),
     },
-    async ({ project, name }) => {
+    async ({ project, name, repositoryId, repositoryType, top }) => {
       const connection = await connectionProvider();
       const buildApi = await connection.getBuildApi();
-      const definitions = await buildApi.getDefinitions(project, name);
+      const definitions = await buildApi.getDefinitions(project, name, repositoryId, repositoryType, undefined, top);
       return {
         content: [{ type: "text", text: JSON.stringify(definitions, null, 2) }],
       };
@@ -63,9 +69,22 @@ function configureBuildTools(server: McpServer, tokenProvider: () => Promise<str
       resultFilter: z.enum(getEnumKeys(BuildResult) as [string, ...string[]]).optional(),
     },
     async ({ project, definitions, statusFilter, resultFilter }) => {
+      const connection = await connectionProvider();
+      const buildApi = await connection.getBuildApi();
+      const builds = await buildApi.getBuilds(
+        project,
+        definitions,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        statusFilter ? BuildStatus[statusFilter as keyof typeof BuildStatus] : undefined,
+        resultFilter ? BuildResult[resultFilter as keyof typeof BuildResult] : undefined
+      );
       return {
-        content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
-        isError: true,
+        content: [{ type: "text", text: JSON.stringify(builds, null, 2) }],
       };
     }
   );
@@ -76,14 +95,13 @@ function configureBuildTools(server: McpServer, tokenProvider: () => Promise<str
     {
       project: z.string().describe("The name or ID of the Azure DevOps project."),
       buildId: z.number().describe("The ID of the build."),
-      logId: z.number().describe("The ID of the log to retrieve."),
     },
-    async ({ project, buildId, logId }) => {
+    async ({ project, buildId }) => {
       const connection = await connectionProvider();
       const buildApi = await connection.getBuildApi();
-      const log = await buildApi.getBuildLog(project, buildId, logId);
+      const logs = await buildApi.getBuildLogs(project, buildId);
       return {
-        content: [{ type: "text", text: JSON.stringify(log, null, 2) }],
+        content: [{ type: "text", text: JSON.stringify(logs, null, 2) }],
       };
     }
   );
@@ -95,13 +113,15 @@ function configureBuildTools(server: McpServer, tokenProvider: () => Promise<str
       project: z.string().describe("The name or ID of the Azure DevOps project."),
       buildId: z.number().describe("The ID of the build."),
       logId: z.number().describe("The ID of the log to retrieve."),
+      startLine: z.number().optional(),
+      endLine: z.number().optional(),
     },
-    async ({ project, buildId, logId }) => {
+    async ({ project, buildId, logId, startLine, endLine }) => {
       const connection = await connectionProvider();
       const buildApi = await connection.getBuildApi();
-      const log = await buildApi.getBuildLog(project, buildId, logId);
+      const logLines = await buildApi.getBuildLogLines(project, buildId, logId, startLine, endLine);
       return {
-        content: [{ type: "text", text: JSON.stringify(log, null, 2) }],
+        content: [{ type: "text", text: JSON.stringify(logLines, null, 2) }],
       };
     }
   );
@@ -113,11 +133,13 @@ function configureBuildTools(server: McpServer, tokenProvider: () => Promise<str
       project: z.string().describe("The name or ID of the Azure DevOps project."),
       buildId: z.number().describe("The ID of the build."),
       top: z.number().optional().default(10).describe("The maximum number of changes to return."),
+      continuationToken: z.string().optional(),
+      includeSourceChange: z.boolean().optional(),
     },
-    async ({ project, buildId, top }) => {
+    async ({ project, buildId, top, continuationToken, includeSourceChange }) => {
       const connection = await connectionProvider();
       const buildApi = await connection.getBuildApi();
-      const changes = await buildApi.getBuildChanges(project, buildId, undefined, top);
+      const changes = await buildApi.getBuildChanges(project, buildId, continuationToken, top, includeSourceChange);
       return {
         content: [{ type: "text", text: JSON.stringify(changes, null, 2) }],
       };
@@ -154,6 +176,81 @@ function configureBuildTools(server: McpServer, tokenProvider: () => Promise<str
       return {
         content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
         isError: true,
+      };
+    }
+  );
+
+  server.tool(
+    BUILD_TOOLS.pipelines_get_run,
+    "Get a specific run of a pipeline.",
+    {
+      project: z.string().describe("The name or ID of the project."),
+      pipelineId: z.number().describe("The ID of the pipeline."),
+      runId: z.number().describe("The ID of the run."),
+    },
+    async ({ project, pipelineId, runId }) => {
+      const connection = await connectionProvider();
+      const pipelinesApi = await connection.getPipelinesApi();
+      const run = await pipelinesApi.getRun(project, pipelineId, runId);
+      return {
+        content: [{ type: "text", text: JSON.stringify(run, null, 2) }],
+      };
+    }
+  );
+
+  server.tool(
+    BUILD_TOOLS.pipelines_list_runs,
+    "Get a list of runs for a pipeline.",
+    {
+      project: z.string().describe("The name or ID of the project."),
+      pipelineId: z.number().describe("The ID of the pipeline."),
+    },
+    async ({ project, pipelineId }) => {
+      const connection = await connectionProvider();
+      const pipelinesApi = await connection.getPipelinesApi();
+      const runs = await pipelinesApi.listRuns(project, pipelineId);
+      return {
+        content: [{ type: "text", text: JSON.stringify(runs, null, 2) }],
+      };
+    }
+  );
+
+  server.tool(
+    BUILD_TOOLS.pipelines_run_pipeline,
+    "Run a pipeline.",
+    {
+      project: z.string().describe("The name or ID of the project."),
+      pipelineId: z.number().describe("The ID of the pipeline."),
+      resources: z.any().optional().describe("The resources to use for the run."),
+      templateParameters: z.any().optional().describe("The template parameters to use for the run."),
+      previewRun: z.boolean().optional().describe("Whether to do a preview run."),
+      yamlOverride: z.string().optional().describe("YAML to override the pipeline definition."),
+      stagesToSkip: z.array(z.string()).optional().describe("Stages to skip."),
+      variables: z.any().optional().describe("Variables to use for the run."),
+    },
+    async ({ project, pipelineId, resources, templateParameters, previewRun, yamlOverride, stagesToSkip, variables }) => {
+      if (yamlOverride && !previewRun) {
+        throw new Error("Parameter 'yamlOverride' can only be specified together with parameter 'previewRun'.");
+      }
+      const connection = await connectionProvider();
+      const pipelinesApi = await connection.getPipelinesApi();
+      const run = await pipelinesApi.runPipeline(
+        {
+          previewRun,
+          resources,
+          stagesToSkip,
+          templateParameters,
+          variables,
+          yamlOverride,
+        },
+        project,
+        pipelineId
+      );
+      if (!run.id) {
+        throw new Error("Failed to get build ID from pipeline run");
+      }
+      return {
+        content: [{ type: "text", text: JSON.stringify(run, null, 2) }],
       };
     }
   );

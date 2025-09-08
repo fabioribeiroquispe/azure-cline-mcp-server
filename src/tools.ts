@@ -5,7 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebApi } from "azure-devops-node-api";
 
 import { Domain } from "./shared/domains.js";
-import { configureAdvSecTools } from "./tools/advanced-security.js";
+// import { configureAdvSecTools } from "./tools/advanced-security.js";
 import { configureBuildTools } from "./tools/builds.js";
 import { configureCoreTools } from "./tools/core.js";
 import { configureReleaseTools } from "./tools/releases.js";
@@ -42,7 +42,7 @@ function configureAllTools(
   configureIfDomainEnabled(Domain.RELEASES, () => configureReleaseTools(server, stringTokenProvider, connectionProvider));
   configureIfDomainEnabled(Domain.WIKI, () => configureWikiTools(server, stringTokenProvider, connectionProvider));
   configureIfDomainEnabled(Domain.TEST_PLANS, () => configureTestPlanTools(server, stringTokenProvider, connectionProvider));
-  configureIfDomainEnabled(Domain.ADVANCED_SECURITY, () => configureAdvSecTools(server, stringTokenProvider, connectionProvider));
+  // configureIfDomainEnabled(Domain.ADVANCED_SECURITY, () => configureAdvSecTools(server, stringTokenProvider, connectionProvider));
 
   configureIfDomainEnabled(Domain.REPOSITORIES, () => configureRepoTools(server, tokenProvider, connectionProvider, userAgentProvider, ado_org, pat));
 

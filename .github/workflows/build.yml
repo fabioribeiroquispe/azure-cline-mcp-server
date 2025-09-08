@@ -72,10 +72,10 @@ jobs:
           name: azure-cline-mcp-server-coverage
           fail_ci_if_error: false
 
-      - name: Validate server startup via npx
+      - name: Validate server startup via local binary
         shell: pwsh
         run: |
-          $result = & npx azure-cline-mcp-server 2>&1 | Out-String
+          $result = & npm exec azure-cline-mcp-server -- 2>&1 | Out-String
           if ($result -notmatch "Usage: azure-cline-mcp-server <organization>") {
             Write-Host "Expected usage message not found in output:"
             Write-Host $result

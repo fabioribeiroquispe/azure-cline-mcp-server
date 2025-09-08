@@ -18,7 +18,7 @@ import { WebApi } from "azure-devops-node-api";
 
 // Parse command line arguments using yargs
 const argv = yargs(hideBin(process.argv))
-  .scriptName("mcp-server-azuredevops")
+  .scriptName("azure-cline-mcp-server")
   .usage("Usage: $0 <organization> --pat <personal_access_token> [options]")
   .version(packageVersion)
   .command("$0 <organization> <pat> [options]", "Azure DevOps MCP Server", (yargs) => {
