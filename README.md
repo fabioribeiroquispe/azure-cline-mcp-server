@@ -202,13 +202,7 @@ In your project, create a `.vscode/mcp.json` file with the following content:
     "ado": {
       "type": "stdio",
       "command": "npx",
-      "args": [
-        "-y",
-        "azure-cline-mcp-server",
-        "${input:ado_org}",
-        "--pat",
-        "${input:ado_pat}"
-      ]
+      "args": ["-y", "azure-cline-mcp-server", "${input:ado_org}", "--pat", "${input:ado_pat}"]
     }
   }
 }
@@ -259,6 +253,7 @@ Add the following JSON object to the `mcpServers` list in your `cline_mcp_settin
 ```
 
 **Important:**
+
 - Replace `your_azure_devops_organization_name` with your actual organization name.
 - Replace `your_personal_access_token_here` with the PAT you generated.
 - Make sure to add a comma if you are adding this server to an existing list of servers in the `mcpServers` object.
@@ -275,27 +270,27 @@ This section provides details for all the fields in the `.vscode/mcp.json` file.
 
 This array defines the prompts that VS Code will show the user to gather necessary values.
 
--   `id`: A unique identifier for the input. The value provided by the user is referenced in the `args` section using `${input:id}`.
-    -   `ado_org` (required): The name of your Azure DevOps organization.
-    -   `ado_pat` (required): The Personal Access Token for authentication.
--   `type`: The type of prompt.
-    -   `promptString`: A standard text input field.
-    -   `promptPassword`: A text input field that masks the user's entry for security.
--   `description`: The text displayed to the user in the prompt.
+- `id`: A unique identifier for the input. The value provided by the user is referenced in the `args` section using `${input:id}`.
+  - `ado_org` (required): The name of your Azure DevOps organization.
+  - `ado_pat` (required): The Personal Access Token for authentication.
+- `type`: The type of prompt.
+  - `promptString`: A standard text input field.
+  - `promptPassword`: A text input field that masks the user's entry for security.
+- `description`: The text displayed to the user in the prompt.
 
 #### `servers` Object
 
 This object defines the MCP server to be run.
 
--   `ado`: A user-defined name for the server configuration.
--   `type`: The transport protocol. Must be `stdio`.
--   `command`: The command to execute to start the server.
-    -   `npx`: (Recommended for most users) Fetches and runs the latest version of the server package from the npm registry.
-    -   `mcp-server-azuredevops`: Use this if you have cloned this repository and are running the server from the local source code.
--   `args`: An array of arguments passed to the command.
-    -   `"${input:ado_org}"`: The mandatory organization name, passed from the input prompt.
-    -   `"--pat", "${input:ado_pat}"`: The mandatory Personal Access Token, passed from the input prompt.
-    -   `"-d", "domain1", "domain2", ...`: (Optional) A list of tool domains to enable. This allows you to load only the tools you need. If omitted, all domains are loaded by default.
+- `ado`: A user-defined name for the server configuration.
+- `type`: The transport protocol. Must be `stdio`.
+- `command`: The command to execute to start the server.
+  - `npx`: (Recommended for most users) Fetches and runs the latest version of the server package from the npm registry.
+  - `mcp-server-azuredevops`: Use this if you have cloned this repository and are running the server from the local source code.
+- `args`: An array of arguments passed to the command.
+  - `"${input:ado_org}"`: The mandatory organization name, passed from the input prompt.
+  - `"--pat", "${input:ado_pat}"`: The mandatory Personal Access Token, passed from the input prompt.
+  - `"-d", "domain1", "domain2", ...`: (Optional) A list of tool domains to enable. This allows you to load only the tools you need. If omitted, all domains are loaded by default.
 
 #### Using Domains
 

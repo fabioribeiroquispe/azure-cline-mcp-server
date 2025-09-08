@@ -5,8 +5,6 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import * as azdev from "azure-devops-node-api";
-import * as fs from 'fs';
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -48,17 +46,9 @@ const argv = yargs(hideBin(process.argv))
   .help()
   .parseSync();
 
-const orgName = (argv.organization as string) || process.env.ADO_ORG_NAME;
-const pat = (argv.pat as string) || process.env.ADO_PAT;
-
-export const orgName = orgName;
-const orgUrl = "https://dev.azure.com/" + orgName;
-const orgName = (argv.organization as string) || process.env.ADO_ORG_NAME;
-const pat = (argv.pat as string) || process.env.ADO_PAT;
-
-export const orgName = orgName;
-const orgUrl = "https://dev.azure.com/" + orgName;
-const orgUrl = "https://dev.azure.com/" + orgName;
+export const orgName: string = (argv.organization as string) || process.env.ADO_ORG_NAME || "";
+export const pat: string = (argv.pat as string) || process.env.ADO_PAT || "";
+export const orgUrl = `https://dev.azure.com/${orgName}`;
 
 const domainsManager = new DomainsManager(argv.domains);
 export const enabledDomains = domainsManager.getEnabledDomains();
@@ -90,7 +80,7 @@ async function main() {
     return { token: pat, expiresOnTimestamp: Date.now() + 3600 * 1000 };
   };
 
-  configureAllTools(server, tokenProvider, getAzureDevOpsClient(userAgentComposer, pat), () => userAgentComposer.userAgent, enabledDomains, orgName, pat!);
+  configureAllTools(server, tokenProvider, getAzureDevOpsClient(userAgentComposer, pat), () => userAgentComposer.userAgent, enabledDomains, orgName, pat);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

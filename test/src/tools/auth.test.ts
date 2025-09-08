@@ -14,7 +14,7 @@ describe("auth functions with PAT", () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-    process.argv = process.argv.filter(arg => !arg.startsWith("--pat="));
+    process.argv = process.argv.filter((arg) => !arg.startsWith("--pat="));
   });
 
   describe("getCurrentUserDetails", () => {
@@ -36,17 +36,14 @@ describe("auth functions with PAT", () => {
 
       const expectedAuthHeader = `Basic ${Buffer.from(":fake-pat").toString("base64")}`;
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        "https://dev.azure.com/test-org/_apis/connectionData",
-        {
-          method: "GET",
-          headers: {
-            "Authorization": expectedAuthHeader,
-            "Content-Type": "application/json",
-            "User-Agent": "my-app",
-          },
-        }
-      );
+      expect(global.fetch).toHaveBeenCalledWith("https://dev.azure.com/test-org/_apis/connectionData", {
+        method: "GET",
+        headers: {
+          "Authorization": expectedAuthHeader,
+          "Content-Type": "application/json",
+          "User-Agent": "my-app",
+        },
+      });
 
       expect(result).toEqual(mockUserData);
     });
@@ -58,18 +55,14 @@ describe("auth functions with PAT", () => {
         json: jest.fn().mockResolvedValue({ message: "Unauthorized" }),
       });
 
-      await expect(getCurrentUserDetails("test-org", "fake-pat")).rejects.toThrow(
-        "Error fetching user details: Unauthorized"
-      );
+      await expect(getCurrentUserDetails("test-org", "fake-pat")).rejects.toThrow("Error fetching user details: Unauthorized");
     });
   });
 
   describe("searchIdentities", () => {
     it("should search identities with correct PAT headers", async () => {
       const mockIdentities = {
-        value: [
-          { id: "user1-id", providerDisplayName: "John Doe", descriptor: "aad.user1-descriptor" },
-        ],
+        value: [{ id: "user1-id", providerDisplayName: "John Doe", descriptor: "aad.user1-descriptor" }],
       };
 
       (global.fetch as jest.Mock).mockResolvedValue({
@@ -81,16 +74,13 @@ describe("auth functions with PAT", () => {
 
       const expectedAuthHeader = `Basic ${Buffer.from(":fake-pat").toString("base64")}`;
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        "https://vssps.dev.azure.com/test-org/_apis/identities?api-version=7.2-preview.1&searchFilter=General&filterValue=john.doe%40example.com",
-        {
-          headers: {
-            "Authorization": expectedAuthHeader,
-            "Content-Type": "application/json",
-            "User-Agent": "my-app",
-          },
-        }
-      );
+      expect(global.fetch).toHaveBeenCalledWith("https://vssps.dev.azure.com/test-org/_apis/identities?api-version=7.2-preview.1&searchFilter=General&filterValue=john.doe%40example.com", {
+        headers: {
+          "Authorization": expectedAuthHeader,
+          "Content-Type": "application/json",
+          "User-Agent": "my-app",
+        },
+      });
 
       expect(result).toEqual(mockIdentities);
     });
@@ -102,10 +92,7 @@ describe("auth functions with PAT", () => {
         text: jest.fn().mockResolvedValue("Not Found"),
       });
 
-      await expect(
-        searchIdentities("nonexistent@example.com", "test-org", "fake-pat")
-      ).rejects.toThrow("HTTP 404: Not Found"
-      );
+      await expect(searchIdentities("nonexistent@example.com", "test-org", "fake-pat")).rejects.toThrow("HTTP 404: Not Found");
     });
   });
 
@@ -130,10 +117,7 @@ describe("auth functions with PAT", () => {
         json: jest.fn().mockResolvedValue({ value: [] }),
       });
 
-      await expect(
-        getUserIdFromEmail("nobody@example.com", "test-org", "fake-pat")
-      ).rejects.toThrow("No user found with email/unique name: nobody@example.com"
-      );
+      await expect(getUserIdFromEmail("nobody@example.com", "test-org", "fake-pat")).rejects.toThrow("No user found with email/unique name: nobody@example.com");
     });
   });
 });

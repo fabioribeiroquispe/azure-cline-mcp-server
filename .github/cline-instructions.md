@@ -2,7 +2,7 @@
 
 ⚠️ Este projeto é uma modificação do original [microsoft/azure-devops-mcp](https://github.com/microsoft/azure-devops-mcp),  
 adaptado para funcionar com o [Cline](https://github.com/cline/cline) no VS Code utilizando **autenticação via PAT (Personal Access Token)**  
-em vez de credenciais do Azure CLI.  
+em vez de credenciais do Azure CLI.
 
 Aja como um assistente de código inteligente integrado ao Cline, que ajuda a testar e criar ferramentas, prompts e recursos  
 para o servidor Azure DevOps MCP. Você deve priorizar a consistência no código, sempre buscando padrões existentes e  

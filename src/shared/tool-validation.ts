@@ -88,7 +88,7 @@ export function extractToolNames(fileContent: string): string[] {
     const objectContent = toolsMatch[1];
 
     // Now extract individual tool definitions from within the object
-    const toolPattern = /^\s*[a-zA-Z_][a-zA-Z0-9_]*:\s*"([^"]+)"/gm;
+    const toolPattern = /^\s*\w+:\s*"([^"]+)"/gm;
 
     let match;
     while ((match = toolPattern.exec(objectContent)) !== null) {
@@ -108,7 +108,7 @@ export function extractParameterNames(fileContent: string): string[] {
   const paramNames: string[] = [];
 
   // Pattern to match parameter definitions like: paramName: z.string()
-  const paramPattern = /^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*z\./gm;
+  const paramPattern = /^\s*\w+:\s*"([^"]+)"/gm;
 
   let match;
   while ((match = paramPattern.exec(fileContent)) !== null) {

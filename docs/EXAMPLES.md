@@ -26,7 +26,7 @@ A maioria das ferramentas de work item requer contexto de projeto. Você pode re
 
 ```text
 listar projetos ado
-````
+```
 
 ### Listar Equipes
 
@@ -126,9 +126,9 @@ listar work items do backlog Stories. Identificar todos os bugs relacionados à 
 
 O parâmetro `format` indica se campos de texto longo devem usar Markdown. Disponível para:
 
-* **wit\_update\_work\_items\_batch**
-* **wit\_add\_child\_work\_items**
-* **wit\_create\_work\_item**
+- **wit_update_work_items_batch**
+- **wit_add_child_work_items**
+- **wit_create_work_item**
 
 > 🚩 HTML é o padrão, a menos que `Markdown` seja explicitamente definido.
 

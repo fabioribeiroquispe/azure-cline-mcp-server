@@ -16,14 +16,7 @@
       "openFiles": ["CONTRIBUTING.md"]
     },
     "vscode": {
-      "extensions": [
-        "ms-azuretools.vscode-docker",
-        "EditorConfig.EditorConfig",
-        "cline.bot", 
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "ms-vscode.vscode-typescript-next"
-      ]
+      "extensions": ["ms-azuretools.vscode-docker", "EditorConfig.EditorConfig", "cline.bot", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "ms-vscode.vscode-typescript-next"]
     }
   },
   "remoteUser": "node"

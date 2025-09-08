@@ -39,8 +39,8 @@ async function searchIdentities(identity: string, orgName: string, pat: string, 
   const baseUrl = `https://vssps.dev.azure.com/${orgName}/_apis/identities`;
   const params = new URLSearchParams({
     "api-version": apiVersion,
-    searchFilter: "General",
-    filterValue: identity,
+    "searchFilter": "General",
+    "filterValue": identity,
   });
   const headers = getAuthHeaders(pat, userAgent);
 

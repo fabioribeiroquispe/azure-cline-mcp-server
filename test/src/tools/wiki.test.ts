@@ -4,7 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebApi } from "azure-devops-node-api";
 import { configureWikiTools } from "../../../src/tools/wiki";
 
-type TokenProviderMock = () => Promise<AccessToken>;
+type TokenProviderMock = () => Promise<string>;
 type ConnectionProviderMock = () => Promise<WebApi>;
 interface WikiApiMock {
   getWiki: jest.Mock;
@@ -15,7 +15,10 @@ interface WikiApiMock {
 
 describe("configureWikiTools", () => {
   let server: McpServer;
-  let tokenProvider: TokenProviderMock;
+  let tokenProvider: TokenProviderMock = async () => {
+    const accessToken: AccessToken = { token: "mocked-token", expiresOnTimestamp: Date.now() + 3600 * 1000 };
+    return accessToken.token;
+  };
   let connectionProvider: ConnectionProviderMock;
   let mockConnection: {
     getWikiApi: jest.Mock;

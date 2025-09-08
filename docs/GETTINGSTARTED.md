@@ -9,20 +9,20 @@
 
 ### Visual Studio Code / Insiders
 
-* [VS Code](https://code.visualstudio.com/download) ou [VS Code Insiders](https://code.visualstudio.com/insiders)
-* [Node.js 20+](https://nodejs.org/en/download)
-* PAT configurado no Azure DevOps
-* Pasta de projeto vazia para abrir no VS Code
+- [VS Code](https://code.visualstudio.com/download) ou [VS Code Insiders](https://code.visualstudio.com/insiders)
+- [Node.js 20+](https://nodejs.org/en/download)
+- PAT configurado no Azure DevOps
+- Pasta de projeto vazia para abrir no VS Code
 
 ### Visual Studio 2022
 
-* [Visual Studio 2022 v17.14+](https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history)
-* PAT configurado
+- [Visual Studio 2022 v17.14+](https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history)
+- PAT configurado
 
 ### Cline / Claude / Cursor
 
-* Extensões MCP instaladas
-* Acesso à configuração de MCP Servers
+- Extensões MCP instaladas
+- Acesso à configuração de MCP Servers
 
 </details>
 
@@ -33,8 +33,7 @@
 
 ### ✨ Instalação com um clique
 
-[![VS Code](https://img.shields.io/badge/VS_Code-Install_AzureClineDevOps_MCP_Server-0098FF?style=flat-square\&logo=visualstudiocode\&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&config=%7B%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22azure-cline-mcp-server%22%2C%20%22%24%7Binput%3Aado_org%7D%22%2C%20%22%24%7Binput%3Apat%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Nome%20da%20organiza%C3%A7%C3%A3o%20Azure%20DevOps%20%28ex.%20%27contoso%27%29%22%7D,%7B%22id%22%3A%20%22pat%22%2C%22type%22%3A%20%22promptString%22%2C%22description%22%3A%22Personal%20Access%20Token%20%28PAT%29%22%7D%5D)
-
+[![VS Code](https://img.shields.io/badge/VS_Code-Install_AzureClineDevOps_MCP_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&config=%7B%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22azure-cline-mcp-server%22%2C%20%22%24%7Binput%3Aado_org%7D%22%2C%20%22%24%7Binput%3Apat%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Nome%20da%20organiza%C3%A7%C3%A3o%20Azure%20DevOps%20%28ex.%20%27contoso%27%29%22%7D,%7B%22id%22%3A%20%22pat%22%2C%22type%22%3A%20%22promptString%22%2C%22description%22%3A%22Personal%20Access%20Token%20%28PAT%29%22%7D%5D)
 
 > Após a instalação, selecione **Modo Act** no Cline e atualize a lista de ferramentas.
 
@@ -60,7 +59,6 @@
 3. Alterne para **Modo Act**
 4. Clique em **Selecionar Ferramentas**
 
-
 > Crie `.github/copilot-instructions.md` com instruções do projeto para melhorar a experiência MCP Server.
 
 </details>
@@ -75,14 +73,12 @@
 1. **MCP Servers → Installed → Advanced MCP Settings**
 2. Em `Cline>Mcp:Mode`, escolha: permitir / restringir / desabilitar
 
-
 ### Individual
 
-* Deletar → ícone da lixeira
-* Reiniciar → botão Restart
-* Habilitar/Desabilitar → toggle switch
-* Timeout → `Network Timeout`
-
+- Deletar → ícone da lixeira
+- Reiniciar → botão Restart
+- Habilitar/Desabilitar → toggle switch
+- Timeout → `Network Timeout`
 
 ### Arquivo `cline_mcp_settings.json`
 
@@ -119,10 +115,10 @@
 <details>
 <summary>⚠️ Resolução de Problemas</summary>
 
-* **Servidor não responde:** verifique processo ativo
-* **Erro de permissão:** confira PAT
-* **Ferramenta não disponível:** servidor implementa a ferramenta?
-* **Performance lenta:** ajuste `Network Timeout`
+- **Servidor não responde:** verifique processo ativo
+- **Erro de permissão:** confira PAT
+- **Ferramenta não disponível:** servidor implementa a ferramenta?
+- **Performance lenta:** ajuste `Network Timeout`
 
 </details>
 
@@ -155,8 +151,8 @@
 }
 ```
 
-* Reinicie Claude
-* Teste `"Listar projetos ADO"`
+- Reinicie Claude
+- Teste `"Listar projetos ADO"`
 
 </details>
 
@@ -165,8 +161,8 @@
 <details>
 <summary>🖱️ Cursor</summary>
 
-* Configure como **STDIO Server**
-* Args: `["-y", "azure-cline-mcp-server", "<ADO_ORG>", "<PAT>"]`
-* Teste comandos MCP
+- Configure como **STDIO Server**
+- Args: `["-y", "azure-cline-mcp-server", "<ADO_ORG>", "<PAT>"]`
+- Teste comandos MCP
 
 </details>

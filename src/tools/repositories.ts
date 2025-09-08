@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
+import type { AccessToken } from "@azure/identity";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebApi } from "azure-devops-node-api";
 import {
@@ -293,11 +293,7 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
 
       if (created_by_user) {
         try {
-          const userId = await getUserIdFromEmail(
-            created_by_user,
-            ado_org,
-            userAgentProvider()
-          );
+          const userId = await getUserIdFromEmail(created_by_user, ado_org, userAgentProvider());
           searchCriteria.creatorId = userId;
         } catch (error) {
           return {
@@ -383,12 +379,7 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
 
       if (created_by_user) {
         try {
-          const tokenObj = await tokenProvider();
-          const userId = await getUserIdFromEmail(
-            created_by_user,
-            ado_org,
-            userAgentProvider()
-          );
+          const userId = await getUserIdFromEmail(created_by_user, ado_org, userAgentProvider());
           gitPullRequestSearchCriteria.creatorId = userId;
         } catch (error) {
           return {
@@ -680,9 +671,9 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
       project: z.string().optional().describe("Project ID or project name (optional)"),
       filePath: z.string().optional().describe("The path of the file where the comment thread will be created. (optional)"),
       status: z
-        .enum(getEnumKeys(CommentThreadStatus) as [string, ...string[]])
+        .enum(getEnumKeys(CommentThreadStatus) as [keyof typeof CommentThreadStatus, ...Array<keyof typeof CommentThreadStatus>])
         .optional()
-        .default(CommentThreadStatus[CommentThreadStatus.Active])
+        .default(CommentThreadStatus[CommentThreadStatus.Active] as keyof typeof CommentThreadStatus)
         .describe("The status of the comment thread. Defaults to 'Active'."),
       rightFileStartLine: z.number().optional().describe("Position of first character of the thread's span in right file. The line number of a thread's position. Starts at 1. (optional)"),
       rightFileStartOffset: z
@@ -704,25 +695,54 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
           "Position of last character of the thread's span in right file. The character offset of a thread's position inside of a line. Must only be set if rightFileEndLine is also specified. (optional)"
         ),
     },
-    async ({ repositoryId, pullRequestId, content, project, filePath, status, rightFileStartLine, rightFileStartOffset, rightFileEndLine, rightFileEndOffset }) => {
+    async function createPullRequestComment({
+      repositoryId,
+      pullRequestId,
+      content,
+      project,
+      filePath,
+      status,
+      rightFileStartLine,
+      rightFileStartOffset,
+      rightFileEndLine,
+      rightFileEndOffset,
+    }: {
+      repositoryId: string;
+      pullRequestId: number;
+      content: string;
+      project?: string;
+      filePath?: string;
+      status: keyof typeof CommentThreadStatus;
+      rightFileStartLine?: number;
+      rightFileStartOffset?: number;
+      rightFileEndLine?: number;
+      rightFileEndOffset?: number;
+    }) {
       const connection = await connectionProvider();
       const gitApi = await connection.getGitApi();
 
-      const threadContext: CommentThreadContext = { filePath: filePath };
+      const threadContext: CommentThreadContext = { filePath };
+
+      // Função de validação para linha
+      const validateLine = (line: number | undefined, name: string) => {
+        if (line !== undefined && line < 1) {
+          throw new Error(`${name} must be greater than or equal to 1.`);
+        }
+        return line;
+      };
+
+      // Função de validação para offset
+      const validateOffset = (offset: number | undefined, name: string) => {
+        if (offset !== undefined && offset < 1) {
+          throw new Error(`${name} must be greater than or equal to 1.`);
+        }
+        return offset;
+      };
 
       if (rightFileStartLine !== undefined) {
-        if (rightFileStartLine < 1) {
-          throw new Error("rightFileStartLine must be greater than or equal to 1.");
-        }
-
-        threadContext.rightFileStart = { line: rightFileStartLine };
-
+        threadContext.rightFileStart = { line: validateLine(rightFileStartLine, "rightFileStartLine") };
         if (rightFileStartOffset !== undefined) {
-          if (rightFileStartOffset < 1) {
-            throw new Error("rightFileStartOffset must be greater than or equal to 1.");
-          }
-
-          threadContext.rightFileStart.offset = rightFileStartOffset;
+          threadContext.rightFileStart.offset = validateOffset(rightFileStartOffset, "rightFileStartOffset");
         }
       }
 
@@ -730,24 +750,18 @@ function configureRepoTools(server: McpServer, tokenProvider: () => Promise<Acce
         if (rightFileStartLine === undefined) {
           throw new Error("rightFileEndLine must only be specified if rightFileStartLine is also specified.");
         }
-
-        if (rightFileEndLine < 1) {
-          throw new Error("rightFileEndLine must be greater than or equal to 1.");
-        }
-
-        threadContext.rightFileEnd = { line: rightFileEndLine };
-
+        threadContext.rightFileEnd = { line: validateLine(rightFileEndLine, "rightFileEndLine") };
         if (rightFileEndOffset !== undefined) {
-          if (rightFileEndOffset < 1) {
-            throw new Error("rightFileEndOffset must be greater than or equal to 1.");
-          }
-
-          threadContext.rightFileEnd.offset = rightFileEndOffset;
+          threadContext.rightFileEnd.offset = validateOffset(rightFileEndOffset, "rightFileEndOffset");
         }
       }
 
       const thread = await gitApi.createThread(
-        { comments: [{ content: content }], threadContext: threadContext, status: CommentThreadStatus[status as keyof typeof CommentThreadStatus] },
+        {
+          comments: [{ content }],
+          threadContext,
+          status: CommentThreadStatus[status],
+        },
         repositoryId,
         pullRequestId,
         project

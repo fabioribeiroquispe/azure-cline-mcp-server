@@ -5,17 +5,10 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebApi } from "azure-devops-node-api";
 import { IWorkItemTrackingApi } from "azure-devops-node-api/WorkItemTrackingApi.js";
 import { JsonPatchDocument, JsonPatchOperation, Operation } from "azure-devops-node-api/interfaces/common/VSSInterfaces.js";
-import {
-  ArtifactUriQuery,
-  WorkItem,
-  WorkItemBatchGetRequest,
-  WorkItemExpand,
-  WorkItemQueryResult,
-  WorkItemType,
-} from "azure-devops-node-api/interfaces/WorkItemTrackingInterfaces.js";
-import { TeamContext } from "azure-devops-node-api/interfaces/CoreInterfaces.js";
+import { WorkItem, WorkItemBatchGetRequest, WorkItemExpand, WorkItemQueryResult, WorkItemType } from "azure-devops-node-api/interfaces/WorkItemTrackingInterfaces.js";
 import { z } from "zod";
 import { batchApiVersion } from "../utils.js";
+import type { AccessToken } from "@azure/identity";
 
 const WORKITEM_TOOLS = {
   my_work_items: "wit_my_work_items",
@@ -107,11 +100,7 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
     {
       id: z.number().describe("The ID of the work item."),
       project: z.string().optional().describe("The name or ID of the Azure DevOps project."),
-      expand: z
-        .enum(["all", "relations", "fields", "links", "none"])
-        .optional()
-        .default("all")
-        .describe("The expansion level for the work item. Defaults to 'all'."),
+      expand: z.enum(["all", "relations", "fields", "links", "none"]).optional().default("all").describe("The expansion level for the work item. Defaults to 'all'."),
     },
     async ({ id, project, expand }) => {
       const connection = await connectionProvider();
@@ -129,11 +118,7 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
     {
       ids: z.array(z.number()).describe("An array of work item IDs to retrieve."),
       project: z.string().optional().describe("The name or ID of the Azure DevOps project."),
-      expand: z
-        .enum(["all", "relations", "fields", "links", "none"])
-        .optional()
-        .default("all")
-        .describe("The expansion level for the work items. Defaults to 'all'."),
+      expand: z.enum(["all", "relations", "fields", "links", "none"]).optional().default("all").describe("The expansion level for the work items. Defaults to 'all'."),
     },
     async ({ ids, project, expand }) => {
       const connection = await connectionProvider();
@@ -217,10 +202,10 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
       iterationId: z.string().describe("The ID of the iteration."),
     },
     async ({ project, team, iterationId }) => {
-        return {
-            content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
-            isError: true,
-        };
+      return {
+        content: [{ type: "text", text: "This tool is temporarily disabled due to build errors." }],
+        isError: true,
+      };
     }
   );
 
@@ -367,7 +352,8 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
     async ({ project, queryId }) => {
       const connection = await connectionProvider();
       const witApi = await connection.getWorkItemTrackingApi();
-      const queryResult = await witApi.queryById(queryId, project);
+      const teamContext = { project };
+      const queryResult = await witApi.queryById(queryId, teamContext);
       const workItems = await getWorkItemsFromQuery(witApi, queryResult);
       return {
         content: [{ type: "text", text: JSON.stringify(workItems, null, 2) }],
@@ -394,17 +380,17 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
       const token = await tokenProvider();
       const batchUrl = `${connection.serverUrl}/${project}/_apis/wit/$batch?api-version=${batchApiVersion}`;
 
-      const requests = workItemUpdates.map(update => {
+      const requests = workItemUpdates.map((update) => {
         const document = Object.entries(update.updates).map(([key, value]) => ({
           op: "add",
           path: `/fields/${key}`,
           value: value,
         }));
         return {
-            method: "PATCH",
-            uri: `/_apis/wit/workitems/${update.id}`,
-            headers: { "Content-Type": "application/json-patch+json" },
-            body: document
+          method: "PATCH",
+          uri: `/_apis/wit/workitems/${update.id}`,
+          headers: { "Content-Type": "application/json-patch+json" },
+          body: document,
         };
       });
 
@@ -412,7 +398,7 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token.token}`,
           "User-Agent": userAgentProvider(),
         },
         body: JSON.stringify(requests),
@@ -445,8 +431,9 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
       const token = await tokenProvider();
       const batchUrl = `${connection.serverUrl}/${project}/_apis/wit/$batch?api-version=${batchApiVersion}`;
 
-      const requests = linkUpdates.map(link => {
-        const document = [{
+      const requests = linkUpdates.map((link) => {
+        const document = [
+          {
             op: Operation.Add,
             path: "/relations/-",
             value: {
@@ -456,12 +443,13 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
                 comment: link.comment,
               },
             },
-        }];
+          },
+        ];
         return {
-            method: "PATCH",
-            uri: `/_apis/wit/workitems/${link.sourceId}`,
-            headers: { "Content-Type": "application/json-patch+json" },
-            body: document
+          method: "PATCH",
+          uri: `/_apis/wit/workitems/${link.sourceId}`,
+          headers: { "Content-Type": "application/json-patch+json" },
+          body: document,
         };
       });
 
@@ -469,7 +457,7 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token.token}`,
           "User-Agent": userAgentProvider(),
         },
         body: JSON.stringify(requests),
@@ -515,9 +503,9 @@ export function configureWorkItemTools(server: McpServer, tokenProvider: () => P
     async ({ workItemId, artifactTool, artifactType, artifactId, comment }) => {
       const connection = await connectionProvider();
       const witApi = await connection.getWorkItemTrackingApi();
-      const query: ArtifactUriQuery = {
-        artifactUris: [`vstfs:///${artifactTool}/Artifact/${artifactId}`],
-      };
+      // const query: ArtifactUriQuery = {
+      //   artifactUris: [`vstfs:///${artifactTool}/Artifact/${artifactId}`],
+      // };
       // This method does not exist on IWorkItemTrackingApi, skipping for now.
       // const result = await witApi.getArtifactUris(query, undefined);
       // const uri = result.artifactUris?.[artifactId]?.uri;

@@ -89,10 +89,10 @@ function configureWikiTools(server: McpServer, tokenProvider: () => Promise<stri
       type: z.enum(["projectWiki", "codeWiki"]).describe("The type of the wiki."),
     },
     async ({ project, name, type }) => {
-        return {
-            content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
-            isError: true,
-        };
+      return {
+        content: [{ type: "text", text: "This tool is temporarily disabled due to a build error." }],
+        isError: true,
+      };
     }
   );
 }

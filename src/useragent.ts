@@ -20,7 +20,7 @@ class UserAgentComposer {
   }
 
   public appendMcpClientInfo(info: McpClientInfo | undefined): void {
-    if (!this._mcpClientInfoAppended && info && info.name && info.version) {
+    if (!this._mcpClientInfoAppended && info?.name && info?.version) {
       this._userAgent += ` ${info.name}/${info.version}`;
       this._mcpClientInfoAppended = true;
     }

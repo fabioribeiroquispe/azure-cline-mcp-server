@@ -163,9 +163,7 @@ describe("configureCoreTools", () => {
     it("should handle token provider errors correctly", async () => {
       configureCoreTools(server, tokenProvider, connectionProvider, userAgentProvider);
 
-      const call = (server.tool as jest.Mock).mock.calls.find(
-        ([toolName]) => toolName === "core_get_identity_ids"
-      );
+      const call = (server.tool as jest.Mock).mock.calls.find(([toolName]) => toolName === "core_get_identity_ids");
       if (!call) throw new Error("core_get_identity_ids tool not registered");
       const [, , , handler] = call;
 
@@ -177,6 +175,5 @@ describe("configureCoreTools", () => {
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toBe("Error fetching identities: Cannot read properties of undefined (reading 'ok')");
     });
-
   });
 });

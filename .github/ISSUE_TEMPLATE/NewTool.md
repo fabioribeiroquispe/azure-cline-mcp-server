@@ -26,9 +26,9 @@ POST https://almsearch.dev.azure.com/{organization}/{project}/_apis/search/codes
 
 # Regras
 
-1. Seguir estritamente os padrões e convenções de código existentes no projeto.  
-2. Garantir que cada tool exponha todos os parâmetros da API (obrigatórios e opcionais).  
-3. Utilizar a biblioteca oficial [Azure DevOps Node API](https://github.com/microsoft/azure-devops-node-api) para interagir com as APIs.  
+1. Seguir estritamente os padrões e convenções de código existentes no projeto.
+2. Garantir que cada tool exponha todos os parâmetros da API (obrigatórios e opcionais).
+3. Utilizar a biblioteca oficial [Azure DevOps Node API](https://github.com/microsoft/azure-devops-node-api) para interagir com as APIs.
 
 # Brinde especial 🎁
 

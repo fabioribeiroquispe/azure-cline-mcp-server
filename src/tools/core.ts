@@ -7,7 +7,7 @@ import { z } from "zod";
 import { searchIdentities } from "./auth.js";
 
 import type { ProjectInfo } from "azure-devops-node-api/interfaces/CoreInterfaces.js";
-import { Identity } from "azure-devops-node-api/interfaces/IdentitiesInterfaces.js";
+import type { Identity } from "azure-devops-node-api/interfaces/IdentitiesInterfaces.js";
 
 const CORE_TOOLS = {
   list_project_teams: "core_list_project_teams",
@@ -94,9 +94,7 @@ function configureCoreTools(server: McpServer, tokenProvider: () => Promise<stri
     CORE_TOOLS.get_identity_ids,
     "Retrieve Azure DevOps identity IDs for a provided search filter.",
     {
-      searchFilter: z.string().describe(
-        "Search filter (unique name, display name, email) to retrieve identity IDs for."
-      ),
+      searchFilter: z.string().describe("Search filter (unique name, display name, email) to retrieve identity IDs for."),
       ado_org: z.string().describe("Azure DevOps organization name (e.g. 'contoso')"),
       pat: z.string().describe("Personal Access Token (PAT)"),
     },
@@ -104,12 +102,7 @@ function configureCoreTools(server: McpServer, tokenProvider: () => Promise<stri
       try {
         // Aqui chamamos a searchIdentities usando apenas connectionProvider
         // Se quiser, você pode passar um PAT explícito como fallback
-        const connection = await connectionProvider();
-        const identities = await searchIdentities(
-          searchFilter,
-          ado_org,
-          userAgentProvider()
-        );
+        const identities = await searchIdentities(searchFilter, ado_org, userAgentProvider());
 
         if (!identities?.value || identities.value.length === 0) {
           return {
@@ -118,9 +111,9 @@ function configureCoreTools(server: McpServer, tokenProvider: () => Promise<stri
           };
         }
 
-        const identitiesTrimmed = identities.value.map((identity: IdentityBase) => ({
+        const identitiesTrimmed = identities.value.map((identity: Identity) => ({
           id: identity.id,
-          displayName: identity.providerDisplayName,
+          displayName: identity.providerDisplayName, // ← aqui
           descriptor: identity.descriptor,
         }));
 
@@ -138,8 +131,6 @@ function configureCoreTools(server: McpServer, tokenProvider: () => Promise<stri
       }
     }
   );
-
-
 }
 
 export { CORE_TOOLS, configureCoreTools };
