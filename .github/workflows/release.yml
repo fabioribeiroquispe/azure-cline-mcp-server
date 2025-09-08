@@ -2,13 +2,12 @@ name: Publish Package
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
-  id-token: write # Required for OIDC
-  contents: read
+  contents: write
 
 jobs:
   publish:
@@ -21,7 +20,6 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
-      # Ensure npm 11.5.1 or later is installed
       - name: Update npm
         run: npm install -g npm@latest
 
@@ -34,7 +32,15 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Create tag from package.json version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag v$VERSION
+          git push origin v$VERSION
+
       - name: Publish to npm
-        run: npm publish --provenance
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
